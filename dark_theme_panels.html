@@ -23,7 +23,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100% - var(--tab-height, 220px));
             z-index: 0;
         }
 
@@ -33,7 +33,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100% - var(--tab-height, 220px));
             z-index: 10;
             pointer-events: none;
         }
@@ -82,6 +82,7 @@
         :root {
             --panel-bg: #252525;
             --panel-hover: #333333;
+            --tab-height: 220px;
         }
 
         /* The grey tab-shaped panels */
@@ -224,7 +225,7 @@
         }
         .toolbar-left::before { top: -32px; left: 0; background: radial-gradient(circle at top right, transparent 32px, var(--current-bg) 32.5px); }
         .toolbar-left::after { bottom: -32px; left: 0; background: radial-gradient(circle at bottom right, transparent 32px, var(--current-bg) 32.5px); }
-        .ai-edge-left:hover ~ .toolbar-left, .toolbar-left:hover, .toolbar-left.locked, .toolbar-left.visible { transform: translate(50px, -50%); }
+        .toolbar-left.locked, .toolbar-left.visible { transform: translate(50px, -50%); }
         
         .vertical-tools {
             display: flex; flex-direction: column;
@@ -266,7 +267,7 @@
         }
         .toolbar-right::before { top: -32px; right: 0; background: radial-gradient(circle at top left, transparent 32px, var(--current-bg) 32.5px); }
         .toolbar-right::after { bottom: -32px; right: 0; background: radial-gradient(circle at bottom left, transparent 32px, var(--current-bg) 32.5px); }
-        .ai-edge-right:hover ~ .toolbar-right, .toolbar-right:hover, .toolbar-right.locked, .toolbar-right.visible { transform: translate(-50px, -50%); }
+        .toolbar-right.locked, .toolbar-right.visible { transform: translate(-50px, -50%); }
 
         /* HUD Dial CSS */
         .hud-dial-container {
@@ -437,6 +438,13 @@
         }
 
         /* === Floating Vertical Panel === */
+        @keyframes flick-away {
+            0%   { transform: translate(0px,   0px)   scale(1);    opacity: 1; }
+            25%  { transform: translate(20px, -80px)  scale(0.85); opacity: 0.9; }
+            55%  { transform: translate(45px, -150px) scale(0.6);  opacity: 0.6; }
+            80%  { transform: translate(65px, -100px) scale(0.35); opacity: 0.25; }
+            100% { transform: translate(80px,  20px)  scale(0.1);  opacity: 0; }
+        }
         .float-panel {
             position: fixed;
             top: 80px;
@@ -454,6 +462,11 @@
             flex-direction: column;
             overflow: hidden;
             user-select: none;
+            transform-origin: center center;
+        }
+        .float-panel.closing {
+            animation: flick-away 0.38s cubic-bezier(0.4, 0, 1, 1) forwards;
+            pointer-events: none;
         }
         .float-panel-header {
             display: flex;
@@ -506,8 +519,12 @@
         .fp-res-br { right: -4px; bottom: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
         .fp-res-bl { left: -4px; bottom: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
 
-        /* Grid Layout Button - lives inside the right toolbar */
+        /* Grid Layout Button - inside the ai-edge-right panel */
         .grid-layout-btn {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
             background: transparent;
             border: none;
             width: 30px;
@@ -515,11 +532,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(255, 255, 255, 0.6);
             cursor: pointer;
             pointer-events: auto;
-            flex-shrink: 0;
-            position: relative;
             z-index: 1;
             transition: color 0.2s;
             padding: 0;
@@ -532,14 +547,14 @@
             height: 20px;
         }
 
-        /* Layout Options Panel - pops out to the left of the right toolbar */
+        /* Layout Options Panel - pops out to the left of the ai-edge-right panel */
         .layout-options-panel {
             position: fixed;
-            right: 60px;
-            bottom: auto;
-            top: 50%;
-            transform: translateY(-50%) translateX(8px) scale(0.95);
-            transform-origin: right center;
+            right: 58px;
+            bottom: 20px;
+            top: auto;
+            transform: translateX(8px) scale(0.95);
+            transform-origin: bottom right;
             width: 220px;
             height: auto;
             padding: 15px;
@@ -557,7 +572,7 @@
         .layout-options-panel.visible {
             opacity: 1;
             pointer-events: auto;
-            transform: translateY(-50%) translateX(0) scale(1);
+            transform: translateX(0) scale(1);
         }
         
         .layout-grid-container {
@@ -663,6 +678,12 @@
         }
         .workspace-pane {
             position: relative;
+            box-shadow: inset 0 0 0 0 transparent;
+            transition: box-shadow 0.3s ease;
+        }
+        .workspace-pane.active-pane {
+            box-shadow: inset 0 0 18px 2px rgba(0, 180, 255, 0.12),
+                        inset 0 0 4px 1px rgba(0, 180, 255, 0.08);
         }
         /* Only show cube toggle on pane hover */
         .pane-view-toggle {
@@ -670,6 +691,29 @@
             transition: opacity 0.2s, color 0.2s, border-color 0.2s, background 0.2s;
         }
         .workspace-pane:hover .pane-view-toggle {
+            opacity: 1;
+        }
+
+        /* Pane dimension label shown during divider drag */
+        .pane-dim-label {
+            position: absolute;
+            bottom: 48px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            font-family: 'Inter', monospace, sans-serif;
+            color: rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+            z-index: 31;
+            opacity: 0;
+            transition: opacity 0.1s;
+            white-space: nowrap;
+        }
+        .pane-dim-label.visible {
             opacity: 1;
         }
 
@@ -747,6 +791,108 @@
         .lo-vertical { flex-direction: column; }
         .lo-horizontal { flex-direction: row; }
         .lo-quad { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; }
+
+        /* === Bottom Tab Panel === */
+        .bottom-tab-panel {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 220px;
+            min-height: 80px;
+            max-height: 70vh;
+            background: var(--panel-bg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 18;
+            user-select: none;
+        }
+        .btp-resize-bar {
+            position: absolute;
+            top: -4px; left: 0; right: 0;
+            height: 8px;
+            cursor: ns-resize;
+            z-index: 5;
+        }
+        .btp-resize-bar:hover::after,
+        .btp-resize-bar.dragging::after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 3px; left: 0; right: 0;
+            height: 2px;
+            background: rgba(0, 242, 254, 0.6);
+            border-radius: 1px;
+        }
+        .btp-tab-strip {
+            display: flex;
+            align-items: stretch;
+            height: 36px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-left: 8px;
+            gap: 2px;
+        }
+        .btp-tab-strip::-webkit-scrollbar { display: none; }
+        .btp-tab {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0 14px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+            transition: color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+        }
+        .btp-tab:hover { color: rgba(255, 255, 255, 0.75); }
+        .btp-tab.active { color: #fff; border-bottom-color: rgba(0, 242, 254, 0.8); }
+        .btp-tab svg { width: 13px; height: 13px; opacity: 0.6; }
+        .btp-tab.active svg { opacity: 1; }
+        .btp-strip-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            padding-right: 8px;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .btp-strip-btn {
+            background: none; border: none;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            width: 26px; height: 26px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 5px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .btp-strip-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+        .btp-strip-btn svg { width: 14px; height: 14px; }
+        .btp-content-area { flex: 1; overflow: hidden; position: relative; }
+        .btp-pane {
+            position: absolute; inset: 0;
+            padding: 12px 16px;
+            overflow-y: auto;
+            display: none;
+            font-family: 'Inter', monospace, sans-serif;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.7;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.12) transparent;
+        }
+        .btp-pane::-webkit-scrollbar { width: 4px; }
+        .btp-pane::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+        .btp-pane.active { display: block; }
     </style>
 </head>
 <body>
@@ -758,7 +904,16 @@
     <div id="workspace-grid" class="workspace-grid layout-single"></div>
     <!-- AI Gradient Edge Panels -->
     <div class="ai-edge-panel ai-edge-left"></div>
-    <div class="ai-edge-panel ai-edge-right"></div>
+    <div class="ai-edge-panel ai-edge-right">
+        <button class="grid-layout-btn" title="Layout Options">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+        </button>
+    </div>
 
     <!-- Invisible trigger areas -->
     <div class="edge-trigger trigger-top"></div>
@@ -814,7 +969,7 @@
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>
                 </button>
-                <button class="prompt-btn layout-btn" title="Split View">
+                <button class="prompt-btn layout-btn" title="Toolbar Split Button">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Left half background -->
                         <path class="layout-bg-left" d="M3 5 a 2 2 0 0 1 2 -2 h 7 v 18 h -7 a 2 2 0 0 1 -2 -2 Z" fill="transparent" stroke="none"></path>
@@ -837,6 +992,29 @@
     </div>
     <div class="beveled-panel toolbar-left">
         <div class="panel-bg"></div>
+        <div class="vertical-tools" style="justify-content: flex-start; padding-top: 15px;">
+            <!-- Navigate -->
+            <div class="vertical-icon" title="Navigate">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                </svg>
+            </div>
+            <!-- Briefcase -->
+            <div class="vertical-icon" title="Briefcase">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+            </div>
+            <!-- World -->
+            <div class="vertical-icon" title="World">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+            </div>
+        </div>
         <div class="hud-dial-container">
             <svg class="hud-svg" viewBox="0 0 300 300">
                 <circle cx="150" cy="150" r="142" fill="transparent" class="dial-hitbox" style="cursor: grab; pointer-events: all;" />
@@ -929,17 +1107,6 @@
                     <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
                 </svg>
             </div>
-            <!-- Separator -->
-            <div style="width: 20px; height: 1px; background: rgba(255,255,255,0.1); flex-shrink: 0;"></div>
-            <!-- Grid Layout Button (inside toolbar) -->
-            <button class="grid-layout-btn" title="Layout Options">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-                </svg>
-            </button>
         </div>
         <span class="panel-content">Right Toolbar</span>
     </div>
@@ -994,16 +1161,60 @@
     <div class="float-panel-resize fp-res-bl" data-dir="bl"></div>
 </div>
 
+<!-- Bottom Tab Panel -->
+<div class="bottom-tab-panel" id="bottom-tab-panel">
+    <div class="btp-resize-bar" id="btp-resize-bar"></div>
+    <div class="btp-tab-strip">
+        <button class="btp-tab active" data-tab="console">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            Console
+        </button>
+        <button class="btp-tab" data-tab="output">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Output
+        </button>
+        <button class="btp-tab" data-tab="telemetry">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            Telemetry
+        </button>
+        <button class="btp-tab" data-tab="camera">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+            Camera
+        </button>
+        <div class="btp-strip-actions">
+            <button class="btp-strip-btn" id="btp-close" title="Close Panel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    <div class="btp-content-area">
+        <div class="btp-pane active" data-pane="console">> JetSlice workspace initialized.<br>> Renderer: Three.js r128<br>> Views: 1 active</div>
+        <div class="btp-pane" data-pane="output">No output yet.</div>
+        <div class="btp-pane" data-pane="telemetry">Telemetry stream inactive.</div>
+        <div class="btp-pane" data-pane="camera">Camera: Perspective | FOV: 75 | Distance: 40</div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
+    // Update --tab-height based on resize or state change
+    const updateTabHeight = (h) => {
+        document.documentElement.style.setProperty('--tab-height', h + 'px');
+        // Trigger resize event for Three.js
+        window.dispatchEvent(new Event('resize'));
+    };
+
     // === Three.js Setup ===
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x050505, 0.002); // Dark fog
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    
+    // Initial size taking tab bar into account
+    const initialTabHeight = document.getElementById('bottom-tab-panel') ? 220 : 0;
+    renderer.setSize(window.innerWidth, window.innerHeight - initialTabHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(0x050505);
     container.appendChild(renderer.domElement);
@@ -1078,6 +1289,12 @@
                     view.camera = newCam;
                     view.controls = newCtrl;
                 }
+            });
+
+            // Make pane active on click
+            pane.addEventListener('mousedown', () => {
+                document.querySelectorAll('.workspace-pane').forEach(p => p.classList.remove('active-pane'));
+                pane.classList.add('active-pane');
             });
         });
     }
@@ -1563,6 +1780,26 @@
                 div.classList.add('dragging');
                 workspaceGrid.classList.add('dragging');
 
+                // Ensure every pane has a dim label
+                workspaceGrid.querySelectorAll('.workspace-pane').forEach(pane => {
+                    if (!pane.querySelector('.pane-dim-label')) {
+                        const lbl = document.createElement('div');
+                        lbl.className = 'pane-dim-label';
+                        pane.appendChild(lbl);
+                    }
+                });
+
+                function updateDimLabels() {
+                    workspaceGrid.querySelectorAll('.workspace-pane').forEach(pane => {
+                        const r = pane.getBoundingClientRect();
+                        const lbl = pane.querySelector('.pane-dim-label');
+                        if (lbl) {
+                            lbl.textContent = Math.round(r.width) + ' x ' + Math.round(r.height);
+                            lbl.classList.add('visible');
+                        }
+                    });
+                }
+
                 const onMove = (ev) => {
                     const rect = workspaceGrid.getBoundingClientRect();
                     if (axis === 'x') {
@@ -1572,10 +1809,13 @@
                         const pct = Math.max(5, Math.min(95, (ev.clientY - rect.top) / rect.height * 100));
                         workspaceGrid.style.setProperty('--split-y', pct + '%');
                     }
+                    updateDimLabels();
                 };
                 const onUp = () => {
                     div.classList.remove('dragging');
                     workspaceGrid.classList.remove('dragging');
+                    // Hide all dim labels
+                    workspaceGrid.querySelectorAll('.pane-dim-label').forEach(l => l.classList.remove('visible'));
                     window.removeEventListener('mousemove', onMove);
                     window.removeEventListener('mouseup', onUp);
                 };
@@ -1695,7 +1935,13 @@
         if (!fp) return;
 
         // Close
-        closeBtn.addEventListener('click', () => { fp.style.display = 'none'; });
+        closeBtn.addEventListener('click', () => {
+            fp.classList.add('closing');
+            fp.addEventListener('animationend', () => {
+                fp.style.display = 'none';
+                fp.classList.remove('closing');
+            }, { once: true });
+        });
 
         // --- Drag ---
         let dragging = false, dx = 0, dy = 0;
@@ -1763,9 +2009,75 @@
         });
     })();
 
+    // === Bottom Tab Panel ===
+    (function() {
+        const panel = document.getElementById('bottom-tab-panel');
+        const resizeBar = document.getElementById('btp-resize-bar');
+        const closeBtn = document.getElementById('btp-close');
+        if (!panel) return;
+
+        // Tab switching
+        document.querySelectorAll('.btp-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.getAttribute('data-tab');
+                document.querySelectorAll('.btp-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.btp-pane').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                const pane = document.querySelector('.btp-pane[data-pane="' + target + '"]');
+                if (pane) pane.classList.add('active');
+            });
+        });
+
+        // Height resize from top edge
+        resizeBar.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            resizeBar.classList.add('dragging');
+            const startY = e.clientY;
+            const startH = panel.getBoundingClientRect().height;
+            const minH = parseInt(getComputedStyle(panel).minHeight);
+            const maxH = window.innerHeight * 0.7;
+            const onMove = (ev) => {
+                const newH = Math.max(minH, Math.min(maxH, startH - (ev.clientY - startY)));
+                panel.style.height = newH + 'px';
+                document.documentElement.style.setProperty('--tab-height', newH + 'px');
+                renderer.setSize(window.innerWidth, window.innerHeight - newH);
+            };
+            const onUp = () => {
+                resizeBar.classList.remove('dragging');
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onUp);
+            };
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+        });
+
+        // Close button
+        closeBtn.addEventListener('click', () => { 
+            panel.style.display = 'none'; 
+            document.documentElement.style.setProperty('--tab-height', '0px');
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    })();
+
+    // === Toolbar Split Button — toggle left/right toolbars ===
+    (function() {
+        const layoutBtn = document.querySelector('.layout-btn');
+        const toolbarLeft  = document.querySelector('.toolbar-left');
+        const toolbarRight = document.querySelector('.toolbar-right');
+        if (!layoutBtn) return;
+        let toolbarsVisible = false;
+        layoutBtn.addEventListener('click', () => {
+            toolbarsVisible = !toolbarsVisible;
+            if (toolbarLeft)  toolbarLeft.classList.toggle('visible',  toolbarsVisible);
+            if (toolbarRight) toolbarRight.classList.toggle('visible', toolbarsVisible);
+        });
+    })();
+
     // === Resize Handling ===
     window.addEventListener('resize', () => {
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        const panel = document.getElementById('bottom-tab-panel');
+        const th = (panel && panel.style.display !== 'none') ? panel.getBoundingClientRect().height : 0;
+        renderer.setSize(window.innerWidth, window.innerHeight - th);
     });
 </script>
 </body>
