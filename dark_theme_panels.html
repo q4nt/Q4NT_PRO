@@ -436,6 +436,76 @@
             box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
         }
 
+        /* === Floating Vertical Panel === */
+        .float-panel {
+            position: fixed;
+            top: 80px;
+            left: 120px;
+            width: 240px;
+            min-width: 160px;
+            min-height: 200px;
+            max-width: 600px;
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+        .float-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            cursor: grab;
+            flex-shrink: 0;
+        }
+        .float-panel-header:active { cursor: grabbing; }
+        .float-panel-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+        }
+        .float-panel-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .float-panel-close:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .float-panel-close svg { width: 14px; height: 14px; }
+        .float-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.15) transparent;
+        }
+        .float-panel-body::-webkit-scrollbar { width: 4px; }
+        .float-panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+        /* Resize handles */
+        .float-panel-resize { position: absolute; z-index: 10; }
+        .fp-res-r  { top: 14px; right: -4px; bottom: 14px; width: 8px; cursor: ew-resize; }
+        .fp-res-b  { left: 14px; bottom: -4px; right: 14px; height: 8px; cursor: ns-resize; }
+        .fp-res-br { right: -4px; bottom: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .fp-res-bl { left: -4px; bottom: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+
         /* Grid Layout Button - lives inside the right toolbar */
         .grid-layout-btn {
             background: transparent;
@@ -901,6 +971,27 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Floating Vertical Panel -->
+<div class="float-panel" id="float-panel">
+    <div class="float-panel-header" id="float-panel-header">
+        <span class="float-panel-title">Panel</span>
+        <button class="float-panel-close" id="float-panel-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="line">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+    <div class="float-panel-body">
+        <!-- Panel content can go here -->
+    </div>
+    <!-- Resize handles -->
+    <div class="float-panel-resize fp-res-r"  data-dir="r"></div>
+    <div class="float-panel-resize fp-res-b"  data-dir="b"></div>
+    <div class="float-panel-resize fp-res-br" data-dir="br"></div>
+    <div class="float-panel-resize fp-res-bl" data-dir="bl"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1578,8 +1669,14 @@
             if (!isDraggingCmd) return;
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
-            cmdPanel.style.left = (startLeft + dx) + 'px';
-            cmdPanel.style.top = (startTop + dy) + 'px';
+            const panelW = cmdPanel.offsetWidth;
+            const panelH = cmdPanel.offsetHeight;
+            const maxLeft = window.innerWidth - panelW;
+            const maxTop = window.innerHeight - panelH;
+            const newLeft = Math.max(0, Math.min(maxLeft, startLeft + dx));
+            const newTop = Math.max(0, Math.min(maxTop, startTop + dy));
+            cmdPanel.style.left = newLeft + 'px';
+            cmdPanel.style.top = newTop + 'px';
         }, { capture: true });
         
         window.addEventListener('mouseup', () => {
@@ -1589,6 +1686,82 @@
             }
         });
     }
+
+    // === Floating Panel Drag & Resize ===
+    (function() {
+        const fp = document.getElementById('float-panel');
+        const header = document.getElementById('float-panel-header');
+        const closeBtn = document.getElementById('float-panel-close');
+        if (!fp) return;
+
+        // Close
+        closeBtn.addEventListener('click', () => { fp.style.display = 'none'; });
+
+        // --- Drag ---
+        let dragging = false, dx = 0, dy = 0;
+        header.addEventListener('mousedown', (e) => {
+            if (e.target === closeBtn || closeBtn.contains(e.target)) return;
+            dragging = true;
+            dx = e.clientX - fp.getBoundingClientRect().left;
+            dy = e.clientY - fp.getBoundingClientRect().top;
+            e.preventDefault();
+        });
+
+        // --- Resize ---
+        let resizing = false, resDir = '', rsX, rsY, rsW, rsH, rsL, rsT;
+        document.querySelectorAll('.float-panel-resize').forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                resizing = true;
+                resDir = handle.getAttribute('data-dir');
+                rsX = e.clientX;
+                rsY = e.clientY;
+                const r = fp.getBoundingClientRect();
+                rsW = r.width; rsH = r.height;
+                rsL = r.left;  rsT = r.top;
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (dragging) {
+                const newLeft = Math.max(0, Math.min(window.innerWidth - fp.offsetWidth, e.clientX - dx));
+                const newTop  = Math.max(0, Math.min(window.innerHeight - fp.offsetHeight, e.clientY - dy));
+                fp.style.left = newLeft + 'px';
+                fp.style.top  = newTop  + 'px';
+            }
+            if (resizing) {
+                const ddx = e.clientX - rsX;
+                const ddy = e.clientY - rsY;
+                const minW = parseInt(getComputedStyle(fp).minWidth);
+                const minH = parseInt(getComputedStyle(fp).minHeight);
+                const maxW = parseInt(getComputedStyle(fp).maxWidth);
+
+                if (resDir === 'r' || resDir === 'br') {
+                    const newW = Math.min(maxW, Math.max(minW, rsW + ddx));
+                    // clamp so right edge stays on screen
+                    fp.style.width = Math.min(newW, window.innerWidth - rsL) + 'px';
+                }
+                if (resDir === 'bl') {
+                    const newW = Math.max(minW, rsW - ddx);
+                    const newL = rsL + (rsW - newW);
+                    if (newL >= 0) {
+                        fp.style.width = newW + 'px';
+                        fp.style.left  = newL + 'px';
+                    }
+                }
+                if (resDir === 'b' || resDir === 'br' || resDir === 'bl') {
+                    const newH = Math.max(minH, rsH + ddy);
+                    fp.style.height = Math.min(newH, window.innerHeight - rsT) + 'px';
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            dragging = false;
+            resizing = false;
+        });
+    })();
 
     // === Resize Handling ===
     window.addEventListener('resize', () => {
