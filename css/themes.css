@@ -1,0 +1,231 @@
+/* ==========================================================================
+   Q4NT PRO - Theme Variations
+   Default is White/Light. Dark theme via body.dark-theme class.
+   ========================================================================== */
+
+/* --- Dark Theme --- */
+body.dark-theme {
+    --panel-bg: #252525;
+    --panel-hover: #333333;
+    --accent: #00f2fe;
+    --accent-rgb: 0, 242, 254;
+    --surface-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #fff;
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --text-dim: rgba(255, 255, 255, 0.4);
+    background-color: #050505;
+    color: #fff;
+}
+
+body.dark-theme .ai-edge-panel {
+    background: linear-gradient(180deg, #00f2fe 0%, #4facfe 100%);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+}
+
+body.dark-theme .ai-edge-left:hover,
+body.dark-theme .ai-edge-left.locked,
+body.dark-theme .ai-edge-left.visible,
+body.dark-theme .ai-edge-left.hovered {
+    background: var(--panel-bg);
+    box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.05), inset 0 -2px 5px rgba(0, 0, 0, 0.4);
+    border-color: #333;
+}
+
+body.dark-theme .ai-edge-right:hover,
+body.dark-theme .ai-edge-right.locked,
+body.dark-theme .ai-edge-right.visible,
+body.dark-theme .ai-edge-right.hovered {
+    background: var(--panel-bg);
+    box-shadow: inset -2px 2px 5px rgba(255, 255, 255, 0.05), inset -2px -2px 5px rgba(0, 0, 0, 0.4);
+    border-color: #333;
+}
+
+body.dark-theme .nav-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    box-shadow: none;
+}
+
+body.dark-theme .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .logo-text {
+    color: #fff;
+}
+
+body.dark-theme .prompt-input {
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
+}
+
+body.dark-theme .prompt-input:focus {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .prompt-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+body.dark-theme .bottom-tab-panel {
+    background: #252525;
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .float-panel {
+    background: #252525;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+body.dark-theme .float-panel-header {
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+
+body.dark-theme .layout-options-panel {
+    background: #252525;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+body.dark-theme .layout-option {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .lo-box {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .pane-view-toggle {
+    background: rgba(20, 20, 20, 0.7);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.dark-theme .pane-view-toggle:hover {
+    background: rgba(40, 40, 40, 0.9);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* --- Light Theme (backward compat, essentially default) --- */
+body.light-theme {
+    /* Already the default, but kept for explicit toggling */
+    background-color: #f5f5f7;
+    color: #111;
+}
+
+/* --- Blue / Ocean Theme --- */
+body.blue-theme {
+    --panel-bg: #0a1929;
+    --panel-hover: #132f4c;
+    --surface-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #e0f7fa;
+    --text-muted: rgba(224, 247, 250, 0.6);
+    --text-dim: rgba(224, 247, 250, 0.4);
+    background-color: #001122;
+    color: #e0f7fa;
+}
+
+body.blue-theme .ai-edge-panel {
+    background: linear-gradient(180deg, rgba(0, 31, 63, 0.8), rgba(0, 10, 20, 0.8));
+}
+
+body.blue-theme .bottom-tab-panel {
+    background: #001a2e;
+}
+
+body.blue-theme .logo-text { color: #e0f7fa; }
+
+/* --- Green / Forest Theme --- */
+body.green-theme {
+    --panel-bg: #002e17;
+    --panel-hover: #003d1f;
+    --surface-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #e0ffe6;
+    --text-muted: rgba(224, 255, 230, 0.6);
+    --text-dim: rgba(224, 255, 230, 0.4);
+    background-color: #001a0d;
+    color: #e0ffe6;
+}
+
+body.green-theme .ai-edge-panel {
+    background: linear-gradient(180deg, rgba(0, 46, 23, 0.8), rgba(0, 10, 5, 0.8));
+}
+
+body.green-theme .bottom-tab-panel {
+    background: #001a10;
+}
+
+body.green-theme .logo-text { color: #e0ffe6; }
+
+/* --- Theme Options Panel --- */
+.theme-options-panel {
+    position: fixed;
+    right: 58px;
+    bottom: calc(var(--tab-height, 0px) + 86px);
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    padding: 12px;
+    width: 180px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s var(--ease-out-back);
+    z-index: 60;
+    transform: translateX(8px) scale(0.95);
+    transform-origin: bottom right;
+}
+
+body.dark-theme .theme-options-panel,
+body.blue-theme .theme-options-panel,
+body.green-theme .theme-options-panel {
+    background: rgba(10, 10, 10, 0.85);
+    box-shadow: -5px 5px 25px rgba(0, 0, 0, 0.5);
+}
+
+.theme-options-panel.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0) scale(1);
+}
+
+.theme-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+}
+
+.theme-option {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--surface-border);
+    border-radius: 6px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    box-sizing: border-box;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.theme-option.dark   { background: #111; color: #fff; }
+.theme-option.light  { background: #eee; color: #111; }
+.theme-option.blue   { background: #001f3f; color: #00f2fe; border-color: rgba(0, 242, 254, 0.3); }
+.theme-option.green  { background: #002e17; color: #00ff88; border-color: rgba(0, 255, 136, 0.3); }
+
+.theme-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: rgba(0, 0, 0, 0.2);
+}

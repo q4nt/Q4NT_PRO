@@ -1,0 +1,723 @@
+/* ==========================================================================
+   Q4NT PRO - Main Layout & Core Styles
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;600&display=swap');
+
+/* --- CSS Custom Properties (Design Tokens) --- */
+:root {
+    --panel-bg: #ffffff;
+    --panel-hover: #f0f0f5;
+    --tab-height: 37px;
+    --accent: #007AFF;
+    --accent-rgb: 0, 122, 255;
+    --surface-border: rgba(0, 0, 0, 0.08);
+    --text-primary: #1a1a1a;
+    --text-muted: rgba(0, 0, 0, 0.55);
+    --text-dim: rgba(0, 0, 0, 0.35);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-back: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #f5f5f7;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Canvas & UI Containers --- */
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    will-change: contents;
+}
+
+#ui-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* --- Edge Triggers --- */
+.edge-trigger {
+    position: absolute;
+    pointer-events: auto;
+    z-index: 20;
+}
+
+.trigger-top {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+}
+
+/* --- AI Gradient Edge Panels --- */
+.ai-edge-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, var(--accent) 0%, #5ac8fa 100%);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.3);
+    z-index: 30;
+    pointer-events: auto;
+    transition: width 0.35s var(--ease-out-back);
+    user-select: none;
+    -webkit-user-select: none;
+    will-change: width;
+}
+
+.ai-edge-left { left: 0; }
+.ai-edge-right { right: 0; }
+
+.ai-edge-left:hover, .ai-edge-left.locked, .ai-edge-left.visible, .ai-edge-left.hovered {
+    width: 50px;
+    background: var(--panel-bg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-right: none;
+    border-top-right-radius: 16px;
+}
+
+.ai-edge-right:hover, .ai-edge-right.locked, .ai-edge-right.visible, .ai-edge-right.hovered {
+    width: 50px;
+    background: var(--panel-bg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-left: none;
+}
+
+/* --- Beveled Panels (Core) --- */
+.beveled-panel {
+    --current-bg: var(--panel-bg);
+    position: absolute;
+    background: transparent;
+    color: var(--text-primary);
+    pointer-events: auto;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: transform 0.4s var(--ease-out-expo), width 0.4s ease, height 0.4s ease;
+    will-change: transform;
+}
+
+.beveled-panel:hover, .beveled-panel.locked {
+    --current-bg: var(--panel-hover);
+}
+
+.toolbar-left:hover, .toolbar-left.locked, .toolbar-right:hover, .toolbar-right.locked {
+    --current-bg: var(--panel-bg);
+}
+
+.panel-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--current-bg);
+    border-radius: inherit;
+    z-index: 0;
+    pointer-events: none;
+    transition: background 0.3s ease;
+}
+
+/* Inverted curve fillets */
+.beveled-panel::before, .beveled-panel::after {
+    content: '';
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    pointer-events: none;
+    transition: inherit;
+}
+
+/* --- Top Panel --- */
+.panel-top {
+    top: 0;
+    left: 50%;
+    width: 240px;
+    height: 40px;
+    transform: translate(-50%, -100%);
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.panel-top::before {
+    left: -32px;
+    top: 0;
+    background: radial-gradient(circle at bottom left, transparent 32px, var(--current-bg) 32.5px);
+}
+
+.panel-top::after {
+    right: -32px;
+    top: 0;
+    background: radial-gradient(circle at bottom right, transparent 32px, var(--current-bg) 32.5px);
+}
+
+.trigger-top:hover ~ .panel-top, .panel-top:hover, .panel-top.locked {
+    transform: translate(-50%, 0);
+}
+
+.top-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, transform 0.2s;
+    position: absolute;
+    z-index: 2;
+}
+
+.top-btn:hover {
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.minus-btn {
+    left: 15px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.minus-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.plus-btn {
+    right: 15px;
+}
+
+/* --- Bottom Panel (Command Panel) --- */
+.panel-bottom {
+    bottom: 0;
+    left: 50%;
+    width: 650px;
+    height: 100px;
+    transform: translate(-50%, 0);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+.panel-bottom::before {
+    left: -32px;
+    bottom: 0;
+    background: radial-gradient(circle at top left, transparent 32px, var(--current-bg) 32.5px);
+}
+
+.panel-bottom::after {
+    right: -32px;
+    bottom: 0;
+    background: radial-gradient(circle at top right, transparent 32px, var(--current-bg) 32.5px);
+}
+
+.panel-bottom.floating {
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    transition: none;
+}
+
+.panel-bottom.floating::before, .panel-bottom.floating::after {
+    display: none;
+}
+
+/* Command Panel Drag Handle */
+.cmd-drag-handle {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 20px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.cmd-drag-handle:active { cursor: grabbing; }
+.panel-bottom:hover .cmd-drag-handle { opacity: 1; }
+
+.cmd-drag-bar {
+    width: 40px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+.cmd-drag-handle:hover .cmd-drag-bar {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Command Panel Dock Drop Zone */
+.dock-drop-zone {
+    position: absolute;
+    top: 20px;
+    bottom: calc(var(--tab-height, 0px) + 20px);
+    right: 0;
+    width: 350px;
+    background: rgba(var(--accent-rgb), 0.05);
+    border: 2px dashed rgba(var(--accent-rgb), 0.4);
+    border-right: none;
+    border-radius: 16px 0 0 16px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 15;
+    box-sizing: border-box;
+}
+
+.dock-drop-zone.active {
+    opacity: 1;
+}
+
+/* Command Panel Docked State */
+.panel-bottom.docked-right {
+    top: 20px !important;
+    bottom: calc(var(--tab-height, 0px) + 20px) !important;
+    left: auto !important;
+    right: 0 !important;
+    width: 350px !important;
+    height: auto !important;
+    transform: none !important;
+    border-radius: 16px 0 0 16px !important;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.6) !important;
+    transition: all 0.3s var(--ease-out-back) !important;
+}
+
+.panel-bottom.docked-right::before, .panel-bottom.docked-right::after {
+    display: none;
+}
+
+.panel-bottom.docked-right .cmd-drag-handle {
+    width: 100%;
+}
+
+/* --- Toolbars (Left & Right) --- */
+.toolbar-left {
+    top: 50%;
+    left: 0;
+    width: 40px;
+    height: 240px;
+    transform: translate(-100%, -50%);
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    transition: transform 0.35s var(--ease-out-back);
+}
+
+.toolbar-left::before {
+    top: -32px;
+    left: 0;
+    background: radial-gradient(circle at top right, transparent 32px, var(--current-bg) 32.5px);
+}
+
+.toolbar-left::after {
+    bottom: -32px;
+    left: 0;
+    background: radial-gradient(circle at bottom right, transparent 32px, var(--current-bg) 32.5px);
+}
+
+.toolbar-left.locked, .toolbar-left.visible,
+.toolbar-left:hover,
+.ai-edge-left:hover ~ .toolbar-left, .ai-edge-left.hovered ~ .toolbar-left {
+    transform: translate(50px, -50%);
+}
+
+.toolbar-right {
+    top: 50%;
+    right: 0;
+    width: 40px;
+    height: 400px;
+    transform: translate(100%, -50%);
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    transition: transform 0.35s var(--ease-out-back);
+}
+
+.toolbar-right::before {
+    top: -32px;
+    right: 0;
+    background: radial-gradient(circle at top left, transparent 32px, var(--current-bg) 32.5px);
+}
+
+.toolbar-right::after {
+    bottom: -32px;
+    right: 0;
+    background: radial-gradient(circle at bottom left, transparent 32px, var(--current-bg) 32.5px);
+}
+
+.toolbar-right.locked, .toolbar-right.visible,
+.toolbar-right:hover,
+.ai-edge-right:hover ~ .toolbar-right, .ai-edge-right.hovered ~ .toolbar-right {
+    transform: translate(-50px, -50%);
+}
+
+/* --- Vertical Tools --- */
+.vertical-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px 0;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+}
+
+.ai-edge-panel .vertical-tools {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-out-back);
+}
+
+.ai-edge-panel:hover .vertical-tools,
+.ai-edge-panel.locked .vertical-tools,
+.ai-edge-panel.visible .vertical-tools,
+.ai-edge-panel.hovered .vertical-tools {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.vertical-icon {
+    background: transparent;
+    border: none;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    flex-shrink: 0;
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+}
+
+.vertical-icon:hover { color: var(--text-primary); }
+.vertical-icon svg { width: 20px; height: 20px; display: block; }
+
+/* --- Panel Content --- */
+.panel-content {
+    opacity: 0;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: opacity 0.3s ease 0.1s;
+    z-index: 1;
+    position: relative;
+}
+
+.beveled-panel:hover .panel-content, .beveled-panel.locked .panel-content, .beveled-panel.visible .panel-content {
+    opacity: 0.8;
+}
+
+.toolbar-left .panel-content, .toolbar-right .panel-content {
+    display: none;
+}
+
+/* --- Prompt / Textbox --- */
+.prompt-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+.prompt-input {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    padding: 10px 80px 10px 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    transition: background 0.3s;
+}
+
+.prompt-input::placeholder {
+    color: var(--text-dim);
+}
+
+.prompt-input:focus {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.prompt-actions {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 5px;
+}
+
+.prompt-actions-left {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    gap: 5px;
+}
+
+.prompt-btn {
+    background: transparent;
+    border: none;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.prompt-btn:hover {
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* --- Top Nav Buttons --- */
+.top-nav-buttons {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.nav-btn {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--surface-border);
+    color: var(--text-muted);
+    width: 35px;
+    height: 35px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Q4NT Logo --- */
+.logo-text {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #1a1a1a;
+    font-family: 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 200;
+    letter-spacing: 6px;
+    z-index: 10;
+    pointer-events: none;
+    transition: transform 0.4s var(--ease-out-back);
+}
+
+.ai-edge-left:hover ~ .logo-text,
+.ai-edge-left.locked ~ .logo-text,
+.ai-edge-left.visible ~ .logo-text,
+.ai-edge-left.hovered ~ .logo-text {
+    transform: translateX(45px);
+}
+
+/* --- Dashboard Icon --- */
+.dashboard-icon {
+    color: var(--text-dim);
+    transition: transform 0.25s var(--ease-out-back), color 0.25s ease;
+}
+.dashboard-icon:hover, .dashboard-icon.active {
+    color: #00f2fe !important;
+    transform: scale(1.18);
+}
+
+/* --- Right Top Tools --- */
+.right-top-tools {
+    position: absolute;
+    top: 14px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-out-back);
+    z-index: 10;
+}
+
+.ai-edge-right:hover .right-top-tools,
+.ai-edge-right.locked .right-top-tools,
+.ai-edge-right.visible .right-top-tools,
+.ai-edge-right.hovered .right-top-tools {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* --- Right Bottom Tools --- */
+.right-bottom-tools {
+    position: absolute;
+    bottom: 14px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-out-back);
+    z-index: 10;
+}
+
+.ai-edge-right:hover .right-bottom-tools,
+.ai-edge-right.locked .right-bottom-tools,
+.ai-edge-right.visible .right-bottom-tools,
+.ai-edge-right.hovered .right-bottom-tools {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.edge-btn {
+    background: transparent;
+    border: none;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s var(--ease-out-back);
+    padding: 0;
+}
+
+.edge-btn:hover {
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.edge-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* --- JJ Profile Avatar (Left Edge Bottom) --- */
+.left-bottom-tools {
+    position: absolute;
+    bottom: 14px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-out-back);
+    z-index: 10;
+}
+
+.ai-edge-left:hover .left-bottom-tools,
+.ai-edge-left.locked .left-bottom-tools,
+.ai-edge-left.visible .left-bottom-tools,
+.ai-edge-left.hovered .left-bottom-tools {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.jj-profile-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, #3a3a3c, #1c1c1e);
+    color: #f5f5f7;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow:
+        2px 2px 6px rgba(0, 0, 0, 0.35),
+        -1px -1px 4px rgba(255, 255, 255, 0.08),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    transition: transform 0.2s var(--ease-out-back), box-shadow 0.2s;
+}
+
+.jj-profile-btn:hover {
+    transform: scale(1.12);
+    box-shadow:
+        3px 3px 10px rgba(0, 0, 0, 0.4),
+        -1px -1px 6px rgba(255, 255, 255, 0.1),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
