@@ -1,7 +1,12 @@
 /* ==========================================================================
    Q4NT PRO - Theme Variations
-   Default is White/Light. Dark theme via body.dark-theme class.
+   Default is White/Light. Dark theme via body.dark-theme OR html.dark-theme.
+   html.dark-theme catches the pre-paint inline script before body is ready.
    ========================================================================== */
+
+/* Apply background flash-prevention to html element itself */
+html.dark-theme  { background-color: #000000; color-scheme: dark; }
+html.light-theme { background-color: #f5f5f7; color-scheme: light; }
 
 /* --- Dark Theme --- */
 body.dark-theme {
@@ -13,7 +18,7 @@ body.dark-theme {
     --text-primary: #fff;
     --text-muted: rgba(255, 255, 255, 0.6);
     --text-dim: rgba(255, 255, 255, 0.4);
-    background-color: #050505;
+    background-color: #000000;
     color: #fff;
 }
 
@@ -58,13 +63,21 @@ body.dark-theme .logo-text {
     color: #fff;
 }
 
-body.dark-theme .prompt-input {
+body.dark-theme .prompt-container {
     background: rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .prompt-container:focus-within {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .prompt-input {
+    background: transparent;
     color: #fff;
 }
 
 body.dark-theme .prompt-input:focus {
-    background: rgba(0, 0, 0, 0.3);
+    background: transparent;
 }
 
 body.dark-theme .prompt-input::placeholder {

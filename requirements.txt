@@ -1,0 +1,17 @@
+# Web Server
+fastapi
+uvicorn
+
+# Environment Variables
+python-dotenv
+
+# API Requests
+requests
+aiohttp
+
+# AI / LLM
+openai
+
+# Optional/Enterprise defaults
+pydantic
+pydantic-settings

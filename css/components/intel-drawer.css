@@ -1,0 +1,133 @@
+
+/* === Market Intelligence Drawer === */
+.market-intel-drawer {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    padding: 24px;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--surface-border);
+    animation: slideUp 0.4s var(--ease-out-back);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.intel-section {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.intel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.intel-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+}
+
+.intel-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.ticker-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.ticker-item {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+    display: flex;
+    flex-direction: column;
+}
+
+body.dark-theme .ticker-item {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.ticker-item span {
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.ticker-item.up span { color: #34c759; }
+.ticker-item.down span { color: #ff3b30; }
+
+.event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.event-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: rgba(0, 122, 255, 0.05);
+    border-radius: 6px;
+    border-left: 3px solid #007aff;
+}
+
+.event-time {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #007aff;
+    font-family: monospace;
+}
+
+.event-desc {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag {
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+body.dark-theme .tag {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tag:hover {
+    background: rgba(0, 122, 255, 0.15);
+    color: #007aff;
+}

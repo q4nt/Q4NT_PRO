@@ -6,15 +6,42 @@
     <meta name="description" content="Q4NT PRO - Advanced 3D Workspace with Beveled Panels and Multi-View Layouts">
     <title>Q4NT PRO - 3D Workspace</title>
 
+    <!-- Auto Theme Bootstrap (runs synchronously before first paint) -->
+    <script>
+    (function () {
+        var themes = ['dark-theme', 'light-theme', 'blue-theme', 'green-theme'];
+        // Remove any stale theme classes
+        themes.forEach(function (t) { document.documentElement.classList.remove(t); });
+
+        var sunriseH = parseFloat(localStorage.getItem('q4nt_sunrise'));
+        var sunsetH  = parseFloat(localStorage.getItem('q4nt_sunset'));
+        var now = new Date();
+        var currentH = now.getHours() + now.getMinutes() / 60;
+
+        var isDark;
+        if (!isNaN(sunriseH) && !isNaN(sunsetH)) {
+            // Use precise cached solar times from last geolocation run
+            isDark = currentH < sunriseH || currentH >= sunsetH;
+        } else {
+            // No cache yet — use conservative defaults (6:30am / 7:30pm)
+            isDark = currentH < 6.5 || currentH >= 19.5;
+        }
+
+        document.documentElement.classList.add(isDark ? 'dark-theme' : 'light-theme');
+    })();
+    </script>
+
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/themes.css">
-    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/core/main.css">
+    <link rel="stylesheet" href="css/components/intel-drawer.css">
+    <link rel="stylesheet" href="css/core/themes.css">
+    <link rel="stylesheet" href="css/components/components.css">
+    <link rel="stylesheet" href="css/integrations/spotify-pill.css">
 </head>
 <body>
 
-    <!-- SVG Definitions -->
-    <svg width="0" height="0" style="position: absolute; width: 0; height: 0; overflow: hidden;">
+    <!-- Global SVG Definitions -->
+    <svg style="position: absolute; width: 0; height: 0; pointer-events: none; visibility: hidden;" aria-hidden="true">
         <defs>
             <linearGradient id="ai-blue-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#007AFF" />
@@ -32,8 +59,14 @@
     </div>
 
     <!-- AI Gradient Edge Panels -->
-    <div class="ai-edge-panel ai-edge-left">
+    <div class="ai-edge-panel ai-edge-left locked">
         <div class="vertical-tools" style="justify-content: flex-start; padding-top: 15px;">
+            <!-- Navigate (top, pointing left) -->
+            <div class="vertical-icon" title="Navigate">
+                <svg viewBox="0 0 24 24" fill="none" stroke="url(#ai-blue-gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                </svg>
+            </div>
             <!-- Dashboard -->
             <div class="vertical-icon dashboard-icon" title="Dashboard">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -41,12 +74,6 @@
                     <rect x="14" y="3" width="7" height="7" rx="1"></rect>
                     <rect x="14" y="14" width="7" height="7" rx="1"></rect>
                     <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-                </svg>
-            </div>
-            <!-- Navigate -->
-            <div class="vertical-icon" title="Navigate">
-                <svg viewBox="0 0 24 24" fill="none" stroke="url(#ai-blue-gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
                 </svg>
             </div>
             <!-- Folder -->
@@ -63,6 +90,7 @@
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                 </svg>
             </div>
+
         </div>
         <!-- Bottom Profile -->
         <div class="left-bottom-tools">
@@ -80,20 +108,31 @@
     <!-- Workspace Logo -->
     <div class="logo-text">Q4NT</div>
 
-    <div class="ai-edge-panel ai-edge-right">
+    <div class="ai-edge-panel ai-edge-right locked">
         <!-- Top Icons -->
         <div class="right-top-tools">
-            <!-- Plus -->
-            <button class="edge-btn right-plus-btn" title="Add New">
-                <svg viewBox="0 0 24 24" fill="none" stroke="url(#ai-blue-gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
+            <!-- Add Widget -->
+            <button class="edge-btn right-plus-btn" id="add-widget-btn" title="Add Widget">
+                <svg viewBox="0 0 24 24" fill="none" stroke="url(#ai-blue-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14"></path>
                 </svg>
             </button>
             <!-- OpenAI -->
             <button class="edge-btn right-openai-btn" title="OpenAI">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.998 5.998 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z"/>
+                </svg>
+            </button>
+            <!-- Detect -->
+            <button class="edge-btn right-detect-btn" title="Detect">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M6.3 6.3a8 8 0 1 0 11.4 11.4"></path>
+                    <path d="M17.7 6.3a8 8 0 0 1 0 11.4"></path>
+                    <line x1="12" y1="2" x2="12" y2="4"></line>
+                    <line x1="12" y1="20" x2="12" y2="22"></line>
+                    <line x1="2" y1="12" x2="4" y2="12"></line>
+                    <line x1="20" y1="12" x2="22" y2="12"></line>
                 </svg>
             </button>
             <!-- Polymarket -->
@@ -105,12 +144,12 @@
         </div>
         <!-- Bottom Icons -->
         <div class="right-bottom-tools">
-            <!-- Store -->
-            <button class="edge-btn right-store-btn" title="Store">
+            <!-- 3D Cube -->
+            <button class="edge-btn right-cube-btn" title="3D Workspace">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
                 </svg>
             </button>
             <!-- Theme Toggle -->
@@ -138,35 +177,19 @@
                     <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                 </svg>
             </button>
+            <!-- Store -->
+            <button class="edge-btn right-store-btn" title="Store">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+            </button>
         </div>
     </div>
 
     <!-- Invisible trigger areas -->
     <div class="edge-trigger trigger-top"></div>
-
-    <!-- Top Nav Buttons -->
-    <div class="top-nav-buttons">
-        <button class="nav-btn">1</button>
-        <button class="nav-btn">2</button>
-        <button class="nav-btn">3</button>
-        <button class="nav-btn">4</button>
-        <button class="nav-btn">5</button>
-        <button class="nav-btn">6</button>
-        <button class="nav-btn">7</button>
-        <button class="nav-btn">8</button>
-        <button class="nav-btn">9</button>
-        <button class="nav-btn">10</button>
-        <button class="nav-btn">11</button>
-        <button class="nav-btn">12</button>
-        <button class="nav-btn">13</button>
-        <button class="nav-btn">14</button>
-        <button class="nav-btn">15</button>
-        <button class="nav-btn">16</button>
-        <button class="nav-btn">17</button>
-        <button class="nav-btn">18</button>
-        <button class="nav-btn">19</button>
-        <button class="nav-btn">20</button>
-    </div>
 
     <!-- The Panels -->
     <div class="beveled-panel panel-top">
@@ -180,14 +203,129 @@
         </button>
     </div>
 
-    <div class="beveled-panel panel-bottom floating" style="bottom: 24px;">
+    <div class="beveled-panel panel-bottom floating" style="bottom: calc(var(--tab-height, 0px) + 24px);">
         <div class="cmd-drag-handle">
             <div class="cmd-drag-bar"></div>
         </div>
         <div class="panel-bg"></div>
+        
+        <!-- Community Chat: Header + Channels -->
+        <div class="community-panel">
+
+            <!-- Group Switcher + Channel Tabs Row -->
+            <div class="community-header">
+                <button class="group-switcher" id="group-switcher" title="Switch Group">
+                    <span class="group-name">Community</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="channel-tabs">
+                    <button class="channel-tab active" data-channel="general"># general</button>
+                    <button class="channel-tab" data-channel="trading"># trading</button>
+                    <button class="channel-tab" data-channel="signals"># signals</button>
+                    <button class="channel-tab" data-channel="alerts"># alerts</button>
+                </div>
+                <div class="community-header-actions">
+                    <button class="community-action-btn" id="chat-alert-btn" title="Notifications">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="chat-alert-dot"></span>
+                    </button>
+                    <button class="community-action-btn" id="chat-settings-btn" title="Channel Settings">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Group Switcher Dropdown -->
+            <div class="group-dropdown" id="group-dropdown">
+                <div class="group-option active" data-group="Community">
+                    <span class="group-icon">C</span>Community
+                </div>
+                <div class="group-option" data-group="Quant Research">
+                    <span class="group-icon">R</span>Quant Research
+                </div>
+                <div class="group-option" data-group="Alpha Hunters">
+                    <span class="group-icon">A</span>Alpha Hunters
+                </div>
+                <div class="group-option" data-group="Risk Desk">
+                    <span class="group-icon">X</span>Risk Desk
+                </div>
+            </div>
+
+            <!-- Channel Message Panes -->
+            <div class="community-messages-container active" data-pane="general">
+                <div class="community-message">
+                    <img class="cm-avatar" src="https://i.pravatar.cc/150?img=11" alt="Avatar">
+                    <div class="cm-content">
+                        <div class="cm-header"><span class="cm-name">Alex_Dev</span><span class="cm-time">Today at 1:23 PM</span></div>
+                        <div class="cm-text">Has anyone checked the new volatility metrics? The API seems to be lagging behind real-time.</div>
+                    </div>
+                </div>
+                <div class="community-message">
+                    <img class="cm-avatar" src="https://i.pravatar.cc/150?img=33" alt="Avatar">
+                    <div class="cm-content">
+                        <div class="cm-header"><span class="cm-name">QuantGuru</span><span class="cm-time">Today at 1:25 PM</span></div>
+                        <div class="cm-text">Yeah, just noticed that. You might need to force a reconnect on the websocket layer to sync it up.</div>
+                    </div>
+                </div>
+                <div class="community-message">
+                    <img class="cm-avatar" src="https://i.pravatar.cc/150?img=12" alt="Avatar">
+                    <div class="cm-content">
+                        <div class="cm-header"><span class="cm-name">SarahTrade</span><span class="cm-time">Today at 1:30 PM</span></div>
+                        <div class="cm-text">I've got a patch for the websocket timeout if you guys want me to push it to the main branch.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-messages-container" data-pane="trading">
+                <div class="community-message">
+                    <img class="cm-avatar" src="https://i.pravatar.cc/150?img=15" alt="Avatar">
+                    <div class="cm-content">
+                        <div class="cm-header"><span class="cm-name">TradingBot</span><span class="cm-time">Today at 2:01 PM</span></div>
+                        <div class="cm-text">NVDA broke ATH again. Options flow is heavily skewed to calls at the $910 strike.</div>
+                    </div>
+                </div>
+                <div class="community-message">
+                    <img class="cm-avatar" src="https://i.pravatar.cc/150?img=22" alt="Avatar">
+                    <div class="cm-content">
+                        <div class="cm-header"><span class="cm-name">MarcoFX</span><span class="cm-time">Today at 2:08 PM</span></div>
+                        <div class="cm-text">DXY is rolling over, I'm sizing into long EUR/USD here. SL below 1.0720.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-messages-container" data-pane="signals">
+                <div class="community-message">
+                    <img class="cm-avatar" src="https://i.pravatar.cc/150?img=44" alt="Avatar">
+                    <div class="cm-content">
+                        <div class="cm-header"><span class="cm-name">SignalBot</span><span class="cm-time">Today at 11:00 AM</span></div>
+                        <div class="cm-text">📈 LONG BTC — Entry: $63,800 | TP1: $65,500 | TP2: $67,000 | SL: $62,900</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="community-messages-container" data-pane="alerts">
+                <div class="community-message">
+                    <img class="cm-avatar" src="https://i.pravatar.cc/150?img=57" alt="Avatar">
+                    <div class="cm-content">
+                        <div class="cm-header"><span class="cm-name">AlertBot</span><span class="cm-time">Today at 3:45 PM</span></div>
+                        <div class="cm-text">⚠️ FOMC Minutes release in 15 minutes. Expect elevated volatility across all risk assets.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dedicated QA Answer Container -->
+            <div class="qa-messages-container" id="qa-messages-container"></div>
+
+        </div>
+
         <div class="prompt-container">
-            <textarea class="prompt-input" placeholder="Type a message..."></textarea>
-            <div class="prompt-actions-left">
+            <div class="prompt-top-row">
                 <button class="prompt-btn mic-btn" title="Voice Input">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -196,33 +334,36 @@
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>
                 </button>
-                <button class="prompt-btn community-btn" title="Community" style="position: relative;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    <span style="position: absolute; bottom: -4px; right: -4px; background: #ff3b30; color: white; border-radius: 50%; font-size: 9px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1.5px solid var(--current-bg, #fff);">3</span>
-                </button>
-                <button class="prompt-btn layout-btn" title="Toolbar Split Button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <!-- Left half background -->
-                        <path class="layout-bg-left" d="M3 5 a 2 2 0 0 1 2 -2 h 7 v 18 h -7 a 2 2 0 0 1 -2 -2 Z" fill="transparent" stroke="none"></path>
-                        <!-- Right half background -->
-                        <path class="layout-bg-right" d="M12 3 h 7 a 2 2 0 0 1 2 2 v 14 a 2 2 0 0 1 -2 2 h -7 Z" fill="transparent" stroke="none"></path>
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="12" y1="3" x2="12" y2="21"></line>
-                    </svg>
-                </button>
+                <textarea class="prompt-input" placeholder="Type a message..."></textarea>
             </div>
-            <div class="prompt-actions">
-                <button class="prompt-btn attach-btn" title="Attach File">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                </button>
-                <button class="prompt-btn send-btn" title="Send Message">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </button>
+            <div class="prompt-bottom-row">
+                <div class="prompt-actions-left">
+                    <button class="prompt-btn community-btn" title="Community" style="position: relative;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="prompt-btn layout-btn" title="Toolbar Split Button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="layout-bg-left" d="M3 5 a 2 2 0 0 1 2 -2 h 7 v 18 h -7 a 2 2 0 0 1 -2 -2 Z" fill="transparent" stroke="none"></path>
+                            <path class="layout-bg-right" d="M12 3 h 7 a 2 2 0 0 1 2 2 v 14 a 2 2 0 0 1 -2 2 h -7 Z" fill="transparent" stroke="none"></path>
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="12" y1="3" x2="12" y2="21"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="prompt-actions-right">
+                    <button class="prompt-btn attach-btn" title="Attach File">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                    </button>
+                    <button class="prompt-btn send-btn" title="Send Message">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -264,6 +405,19 @@
     <div class="beveled-panel toolbar-right">
         <div class="panel-bg"></div>
         <div class="vertical-tools">
+            <div class="vertical-icon view-toggle-btn" id="global-view-toggle" title="Toggle 3D / 2D">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <div class="vertical-icon" title="Journal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
             <div class="vertical-icon" title="Diagonal Line">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="19" x2="19" y2="5"></line>
@@ -335,9 +489,54 @@
                 <div class="lo-box" style="flex: 2;"></div>
                 <div class="lo-box" style="flex: 1;"></div>
             </div>
+            <div class="layout-option lo-horizontal" title="Triple Column" data-layout="triple-h" data-panes="3">
+                <div class="lo-box"></div>
+                <div class="lo-box"></div>
+                <div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-vertical" title="Triple Row" data-layout="triple-v" data-panes="3">
+                <div class="lo-box"></div>
+                <div class="lo-box"></div>
+                <div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-horizontal" title="Quad Column" data-layout="quad-h" data-panes="4">
+                <div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-vertical" title="Quad Row" data-layout="quad-v" data-panes="4">
+                <div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-horizontal" title="Golden Ratio Horizontal" data-layout="golden-h" data-panes="2">
+                <div class="lo-box" style="flex: 1.618;"></div><div class="lo-box" style="flex: 1;"></div>
+            </div>
+            <div class="layout-option lo-vertical" title="Golden Ratio Vertical" data-layout="golden-v" data-panes="2">
+                <div class="lo-box" style="flex: 1.618;"></div><div class="lo-box" style="flex: 1;"></div>
+            </div>
+            <div class="layout-option lo-grid-6h" title="6-Pane Horizontal" data-layout="grid-6h" data-panes="6">
+                <div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-grid-6v" title="6-Pane Vertical" data-layout="grid-6v" data-panes="6">
+                <div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-grid-9" title="9-Pane Grid" data-layout="grid-9" data-panes="9">
+                <div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-dash-top" title="Dashboard Top" data-layout="dash-top" data-panes="4">
+                <div class="lo-box" style="grid-column: 1 / -1;"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-dash-bottom" title="Dashboard Bottom" data-layout="dash-bottom" data-panes="4">
+                <div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box" style="grid-column: 1 / -1;"></div>
+            </div>
+            <div class="layout-option lo-dash-left" title="Dashboard Left" data-layout="dash-left" data-panes="4">
+                <div class="lo-box" style="grid-row: 1 / -1;"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-dash-right" title="Dashboard Right" data-layout="dash-right" data-panes="4">
+                <div class="lo-box"></div><div class="lo-box"></div><div class="lo-box" style="grid-row: 1 / -1; grid-column: 3;"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
+            <div class="layout-option lo-5-grid" title="5-Pane Grid" data-layout="5-grid" data-panes="5">
+                <div class="lo-box" style="grid-column: 1 / 3;"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div><div class="lo-box"></div>
+            </div>
         </div>
     </div>
-</div>
 
 <!-- Floating Vertical Panel -->
 <div class="float-panel" id="float-panel" style="display: none;">
@@ -358,16 +557,61 @@
     <div class="float-panel-resize fp-res-b"  data-dir="b"></div>
     <div class="float-panel-resize fp-res-br" data-dir="br"></div>
     <div class="float-panel-resize fp-res-bl" data-dir="bl"></div>
+</div>
+
+<!-- Floating Watchlist Drawer -->
+<div id="watchlist-drawer" class="watchlist-drawer">
+    <div class="market-intel-drawer">
+        <div class="intel-section">
+            <div class="intel-header">
+                <span class="intel-title">Live Tickers</span>
+                <span class="intel-badge">Live</span>
+            </div>
+            <div class="ticker-grid">
+                <div class="ticker-item up">BTC <span>$64,210 (+2.4%)</span></div>
+                <div class="ticker-item up">ETH <span>$3,450 (+1.8%)</span></div>
+                <div class="ticker-item down">SOL <span>$142 (-0.5%)</span></div>
+                <div class="ticker-item up">NVDA <span>$892 (+3.2%)</span></div>
+            </div>
+        </div>
+        <div class="intel-section">
+            <div class="intel-header">
+                <span class="intel-title">Upcoming Events</span>
+            </div>
+            <div class="event-list">
+                <div class="event-item">
+                    <div class="event-time">14:00</div>
+                    <div class="event-desc">FOMC Meeting Minutes</div>
+                </div>
+                <div class="event-item">
+                    <div class="event-time">16:30</div>
+                    <div class="event-desc">Earnings: TSLA Release</div>
+                </div>
+            </div>
+        </div>
+        <div class="intel-section">
+            <div class="intel-header">
+                <span class="intel-title">Trending Topics</span>
+            </div>
+            <div class="tag-cloud">
+                <span class="tag">#CPI</span>
+                <span class="tag">#Nvidia</span>
+                <span class="tag">#Halving</span>
+                <span class="tag">#RateCut</span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Bottom Tab Panel -->
 <div class="bottom-tab-panel" id="bottom-tab-panel">
     <div class="btp-resize-bar" id="btp-resize-bar"></div>
-    <div class="btp-tab-strip">
-        <button class="btp-tab active" data-tab="watchlist">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-            Watchlist
-        </button>
-        <button class="btp-tab" data-tab="console">
+     <div class="btp-tab-strip">
+         <button class="btp-tab" data-tab="watchlist">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+             Market Research
+         </button>
+         <button class="btp-tab" data-tab="console">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
             Console
         </button>
@@ -383,26 +627,103 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
             Camera
         </button>
-        <button class="btp-tab" data-tab="canvas">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
-            Canvas
-        </button>
-        <div class="btp-strip-actions">
-            <button class="btp-strip-btn" id="btp-close" title="Close Panel">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
+         <button class="btp-tab" data-tab="canvas">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+             Canvas
+         </button>
+         <button class="btp-tab" data-tab="views-3d">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                 <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                 <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                 <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                 <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+             </svg>
+             3D Views
+         </button>
+         <button class="btp-tab" data-tab="views-f1">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                 <path d="M3 17h6l2-3h8l2 3h-2l-1-1H6l-1 1H3z"></path>
+                 <path d="M8 14l2-6h4l2 6"></path>
+                 <circle cx="7" cy="17" r="1"></circle>
+                 <circle cx="17" cy="17" r="1"></circle>
+             </svg>
+             F1 Tracks
+         </button>
+         <button class="btp-tab" data-tab="views-floors">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                 <path d="M3 12l9-9 9 9-9 9-9-9z"></path>
+                 <path d="M7 12l5-5 5 5-5 5-5-5z"></path>
+             </svg>
+             Floors
+         </button>
+
+    </div>
+    <div class="btp-tab-strip row-2" id="btp-tab-strip-2" style="display: none; border-top: 1px solid rgba(0, 0, 0, 0.06);">
+         <button class="btp-tab active" data-tab="row2-home">Home</button>
+         <button class="btp-tab" data-tab="row2-relevant">Relevant</button>
+         <button class="btp-tab" data-tab="row2-trending">Trending</button>
+         <button class="btp-tab" data-tab="row2-recent">Recent</button>
+         <button class="btp-tab" data-tab="row2-images">Images</button>
+         <button class="btp-tab" data-tab="row2-us">US</button>
+         <button class="btp-tab" data-tab="row2-global">Global</button>
+         <button class="btp-tab" data-tab="row2-chart">Chart</button>
+         <button class="btp-tab" data-tab="row2-strategy">Strategy</button>
+         <button class="btp-tab" data-tab="row2-list">List</button>
+         <button class="btp-tab" data-tab="row2-integrations">Integrations</button>
+         <button class="btp-tab" data-tab="row2-flow">Flow</button>
+         <button class="btp-tab" data-tab="row2-predictions">Predictions</button>
+         <button class="btp-tab" data-tab="row2-product">Product</button>
+         <button class="btp-tab" data-tab="row2-other">Other</button>
+         <button class="btp-tab" data-tab="row2-events">Events</button>
     </div>
     <div class="btp-content-area">
-        <div class="btp-pane active" data-pane="watchlist"></div>
+        <div class="btp-pane" data-pane="watchlist">
+            <div class="watchlist-placeholder">Select items to watch...</div>
+        </div>
         <div class="btp-pane" data-pane="console"></div>
-        <div class="btp-pane" data-pane="output">No output yet.</div>
-        <div class="btp-pane" data-pane="telemetry">Telemetry stream inactive.</div>
-        <div class="btp-pane" data-pane="camera">Camera: loading...</div>
-        <div class="btp-pane" data-pane="canvas"></div>
-    </div>
-</div>
-</div>
+         <div class="btp-pane" data-pane="output">No output yet.</div>
+         <div class="btp-pane" data-pane="telemetry">Telemetry stream inactive.</div>
+         <div class="btp-pane" data-pane="camera">Camera: loading...</div>
+         <div class="btp-pane" data-pane="canvas"></div>
+         <div class="btp-pane" data-pane="views-3d"></div>
+         <div class="btp-pane" data-pane="views-f1"></div>
+         <div class="btp-pane" data-pane="views-floors"></div>
+         <div class="btp-pane active" data-pane="row2-home">
+             <div class="home-panels-container" id="home-panels-container">
+                 <!-- Widget panels generated by JS -->
+             </div>
+             <script>
+             (function() {
+                 var container = document.getElementById('home-panels-container');
+                 if (!container) return;
+                 var closeSvg = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+                 for (var i = 1; i <= 20; i++) {
+                     var panel = document.createElement('div');
+                     panel.className = 'q4-widget-panel';
+                     panel.innerHTML = '<div class="q4-widget-header"><span class="q4-widget-title">PANEL ' + i + '</span><button class="q4-widget-close">' + closeSvg + '</button></div><div class="q4-widget-content">Empty</div>';
+                     container.appendChild(panel);
+                 }
+             })();
+             </script>
+         </div>
+         <div class="btp-pane" data-pane="row2-relevant">Relevant content</div>
+         <div class="btp-pane" data-pane="row2-trending">Trending content</div>
+         <div class="btp-pane" data-pane="row2-recent">Recent content</div>
+         <div class="btp-pane" data-pane="row2-images">Images content</div>
+         <div class="btp-pane" data-pane="row2-us">US content</div>
+         <div class="btp-pane" data-pane="row2-global">Global content</div>
+         <div class="btp-pane" data-pane="row2-chart">Chart content</div>
+         <div class="btp-pane" data-pane="row2-strategy">Strategy content</div>
+         <div class="btp-pane" data-pane="row2-list">List content</div>
+         <div class="btp-pane" data-pane="row2-integrations">Integrations content</div>
+         <div class="btp-pane" data-pane="row2-flow">Flow content</div>
+         <div class="btp-pane" data-pane="row2-predictions">Predictions content</div>
+         <div class="btp-pane" data-pane="row2-product">Product content</div>
+         <div class="btp-pane" data-pane="row2-other">Other content</div>
+         <div class="btp-pane" data-pane="row2-events">Events content</div>
+     </div>
+ </div>
+ </div> <!-- End ui-container -->
 
 
 <!-- Three.js Dependencies -->
@@ -410,7 +731,7 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <!-- Core Engine -->
-<script src="js/scene.js"></script>
+<script src="js/core/scene.js"></script>
 
 <!-- Shared View Utilities -->
 <script src="js/views/shared.js"></script>
@@ -444,15 +765,27 @@
 <script src="js/tabs/tab-telemetry.js"></script>
 <script src="js/tabs/tab-camera.js"></script>
 <script src="js/tabs/tab-canvas.js"></script>
+<script src="js/tabs/tab-views.js"></script>
 
 <!-- UI Modules -->
-<script src="js/themes.js"></script>
-<script src="js/controls.js"></script>
-<script src="js/layout.js"></script>
-<script src="js/panels.js"></script>
+<script src="js/core/themes.js"></script>
+<script src="js/ui/controls.js"></script>
+<script src="js/ui/layout.js"></script>
+<script src="js/ui/panels/command-panel.js"></script>
+<script src="js/ui/panels/float-panel.js"></script>
+<script src="js/ui/panels/bottom-tab-panel.js"></script>
+
+<!-- Command Panel Agent Orchestrator -->
+<script src="js/core/command-processor.js"></script>
+
+<!-- Spotify Integration -->
+<script src="js/integrations/spotify-api.js"></script>
+
+<!-- Auto Theme Switcher (geolocation + NOAA solar calc) -->
+<script src="js/core/theme-auto.js"></script>
 
 <!-- Startup (must be last) -->
-<script src="js/startup.js"></script>
+<script src="js/core/startup.js"></script>
 
 </body>
 </html>

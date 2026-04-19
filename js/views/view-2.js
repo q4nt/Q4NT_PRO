@@ -6,5 +6,5 @@ backgrounds[1] = function () {
     var mesh = new THREE.Mesh(geo, mat);
     mesh.position.y = -15;
     Q4Scene.bgGroup.add(mesh);
-    Q4Scene.currentBgAnimate = function(t) { mesh.position.z = (t * 2) % 10; };
+    Q4Scene.currentBgAnimate = null;
 };

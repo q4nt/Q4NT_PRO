@@ -34,11 +34,7 @@ const Q4Scene = {
 })();
 
 // === Default View State Machine ===
-var _dvState = {
-    scrollDepth: 0, targetDepth: 0,
-    cameraOffset: { x: 0, y: 0 }, targetCameraOffset: { x: 0, y: 0 },
-    isDragging: false, previousMousePosition: { x: 0, y: 0 }
-};
+// Global states moved to per-pane initialization
 var _panelBounds = { minX: -180, maxX: 185, minY: -100, maxY: 95, valid: true };
 var _introZoom = { startZ: 300, endZ: 80, duration: 1500, startTime: -1, done: false };
 var BASE_Z = 80;
@@ -62,18 +58,24 @@ function initViews(paneElements) {
         cam.lookAt(0, 0, cam.position.z - 80);
         var ctrl = new THREE.OrbitControls(cam, pane);
         ctrl.enabled = false;
+        var paneState = {
+            scrollDepth: 0, targetDepth: 0,
+            cameraOffset: { x: 0, y: 0 }, targetCameraOffset: { x: 0, y: 0 },
+            isDragging: false, previousMousePosition: { x: 0, y: 0 }
+        };
+
         var onWheel = function(e) {
             e.preventDefault();
-            var oldD = _dvState.targetDepth;
+            var oldD = paneState.targetDepth;
             var newD = Math.max(0, Math.min(1280, oldD + (-e.deltaY * 0.18)));
-            _dvState.targetDepth = newD;
+            paneState.targetDepth = newD;
             var ad = newD - oldD;
             if (Math.abs(ad) > 0.001) {
                 var h = Math.tan((cam.fov * Math.PI / 180) / 2), w = h * cam.aspect;
-                var nx = _dvState.targetCameraOffset.x + ((e.clientX / window.innerWidth) * 2 - 1) * w * ad;
-                var ny = _dvState.targetCameraOffset.y + (-(e.clientY / window.innerHeight) * 2 + 1) * h * ad;
+                var nx = paneState.targetCameraOffset.x + ((e.clientX / window.innerWidth) * 2 - 1) * w * ad;
+                var ny = paneState.targetCameraOffset.y + (-(e.clientY / window.innerHeight) * 2 + 1) * h * ad;
                 var c = _clampCameraOffset(nx, ny);
-                _dvState.targetCameraOffset.x = c.x; _dvState.targetCameraOffset.y = c.y;
+                paneState.targetCameraOffset.x = c.x; paneState.targetCameraOffset.y = c.y;
             }
         };
         pane.addEventListener('wheel', onWheel, { passive: false });
@@ -82,24 +84,28 @@ function initViews(paneElements) {
             if (e.target.closest && (e.target.closest('.beveled-panel') || e.target.closest('.float-panel') ||
                 e.target.closest('.bottom-tab-panel') || e.target.closest('.ai-edge-panel') ||
                 e.target.closest('.prompt-container'))) return;
-            _dvState.isDragging = true;
-            _dvState.previousMousePosition = { x: e.clientX, y: e.clientY };
+            // Only start drag if clicking inside this specific pane
+            var rect = pane.getBoundingClientRect();
+            if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                paneState.isDragging = true;
+                paneState.previousMousePosition = { x: e.clientX, y: e.clientY };
+            }
         };
         var onMM = function(e) {
-            if (!_dvState.isDragging) return;
+            if (!paneState.isDragging) return;
             var c = _clampCameraOffset(
-                _dvState.targetCameraOffset.x - (e.clientX - _dvState.previousMousePosition.x) * 0.1,
-                _dvState.targetCameraOffset.y + (e.clientY - _dvState.previousMousePosition.y) * 0.1
+                paneState.targetCameraOffset.x - (e.clientX - paneState.previousMousePosition.x) * 0.1,
+                paneState.targetCameraOffset.y + (e.clientY - paneState.previousMousePosition.y) * 0.1
             );
-            _dvState.targetCameraOffset.x = c.x; _dvState.targetCameraOffset.y = c.y;
-            _dvState.previousMousePosition.x = e.clientX; _dvState.previousMousePosition.y = e.clientY;
+            paneState.targetCameraOffset.x = c.x; paneState.targetCameraOffset.y = c.y;
+            paneState.previousMousePosition.x = e.clientX; paneState.previousMousePosition.y = e.clientY;
         };
-        var onMU = function() { _dvState.isDragging = false; };
+        var onMU = function() { paneState.isDragging = false; };
         window.addEventListener('mousedown', onMD);
         window.addEventListener('mousemove', onMM);
         window.addEventListener('mouseup', onMU);
         Q4Scene.activeViews.push({
-            camera: cam, controls: ctrl, element: pane,
+            camera: cam, controls: ctrl, element: pane, paneState: paneState,
             _cleanup: function() {
                 pane.removeEventListener('wheel', onWheel);
                 window.removeEventListener('mousedown', onMD);
@@ -139,11 +145,20 @@ function setBackground(index) {
     if (backgrounds[index]) backgrounds[index]();
     var fp = document.getElementById('float-panel');
     if (fp) fp.style.display = (index === 1) ? 'flex' : 'none';
-    _dvState.scrollDepth = 0; _dvState.targetDepth = 0;
-    _dvState.cameraOffset.x = 0; _dvState.cameraOffset.y = 0;
-    _dvState.targetCameraOffset.x = 0; _dvState.targetCameraOffset.y = 0;
-    _dvState.isDragging = false;
+    Q4Scene.activeBackgroundIndex = index;
+    try {
+        window.dispatchEvent(new CustomEvent('q4:backgroundChanged', { detail: { index: index } }));
+    } catch (e) {
+        // Older environments: fall back to a plain Event.
+        window.dispatchEvent(new Event('q4:backgroundChanged'));
+    }
     Q4Scene.activeViews.forEach(function(v) {
+        if (v.paneState) {
+            v.paneState.scrollDepth = 0; v.paneState.targetDepth = 0;
+            v.paneState.cameraOffset.x = 0; v.paneState.cameraOffset.y = 0;
+            v.paneState.targetCameraOffset.x = 0; v.paneState.targetCameraOffset.y = 0;
+            v.paneState.isDragging = false;
+        }
         v.camera.position.set(0, 0, _introZoom.endZ);
         v.camera.lookAt(0, 0, v.camera.position.z - 80);
     });
@@ -174,12 +189,15 @@ function startAnimationLoop() {
                 cam.position.z = _introZoom.startZ + (_introZoom.endZ - _introZoom.startZ) * (1 - Math.pow(1 - t, 3));
                 if (t >= 1) _introZoom.done = true;
             } else {
-                _dvState.scrollDepth += (_dvState.targetDepth - _dvState.scrollDepth) * 0.12;
-                cam.position.z = _introZoom.endZ - _dvState.scrollDepth;
-                var pl = _dvState.isDragging ? 0.2 : 0.12;
-                _dvState.cameraOffset.x += (_dvState.targetCameraOffset.x - _dvState.cameraOffset.x) * pl;
-                _dvState.cameraOffset.y += (_dvState.targetCameraOffset.y - _dvState.cameraOffset.y) * pl;
-                cam.position.x = _dvState.cameraOffset.x; cam.position.y = _dvState.cameraOffset.y;
+                if (v.paneState) {
+                    var st = v.paneState;
+                    st.scrollDepth += (st.targetDepth - st.scrollDepth) * 0.12;
+                    cam.position.z = _introZoom.endZ - st.scrollDepth;
+                    var pl = st.isDragging ? 0.2 : 0.12;
+                    st.cameraOffset.x += (st.targetCameraOffset.x - st.cameraOffset.x) * pl;
+                    st.cameraOffset.y += (st.targetCameraOffset.y - st.cameraOffset.y) * pl;
+                    cam.position.x = st.cameraOffset.x; cam.position.y = st.cameraOffset.y;
+                }
             }
             cam.lookAt(cam.position.x, cam.position.y, cam.position.z - 80);
             v.controls.target.set(cam.position.x, cam.position.y, cam.position.z - 80);
