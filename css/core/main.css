@@ -502,6 +502,12 @@ body, html {
     height: 380px;
 }
 
+/* --- Config Panels --- */
+.panel-bottom.openai-expanded,
+.panel-bottom.detect-expanded {
+    height: 380px;
+}
+
 /* --- QA Expanded Panel --- */
 .panel-bottom.qa-expanded {
     transition: height 0.3s ease, top 0.3s ease;
@@ -524,6 +530,84 @@ body, html {
 .panel-bottom.qa-expanded .community-panel {
     display: flex;
     bottom: 110px; /* leave room for prompt-container */
+}
+
+/* Config Panels Base */
+.config-panel {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    bottom: 110px;
+    display: none;
+    flex-direction: column;
+    pointer-events: auto;
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+
+.panel-bottom.openai-expanded #openai-config,
+.panel-bottom.detect-expanded #detect-config {
+    display: flex;
+}
+
+.config-header {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+body.light-theme .config-header { border-bottom-color: rgba(0, 0, 0, 0.1); }
+
+.config-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.config-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.config-row label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.config-select, .config-input, .config-textarea {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+body.light-theme .config-select, body.light-theme .config-input, body.light-theme .config-textarea {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.config-select:focus, .config-input:focus, .config-textarea:focus {
+    border-color: var(--accent);
+}
+
+.config-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.config-range {
+    width: 100%;
 }
 
 .panel-bottom.qa-expanded .community-header {
@@ -733,7 +817,9 @@ body.light-theme .group-option:hover {
 }
 
 .panel-bottom.community-expanded .prompt-container,
-.panel-bottom.qa-expanded .prompt-container {
+.panel-bottom.qa-expanded .prompt-container,
+.panel-bottom.openai-expanded .prompt-container,
+.panel-bottom.detect-expanded .prompt-container {
     top: auto;
     bottom: 10px;
     height: 90px;

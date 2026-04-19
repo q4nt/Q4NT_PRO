@@ -54,9 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         // Adjust height if necessary
                         const currentHeight = panel.getBoundingClientRect().height;
-                        if (currentHeight < 250) {
-                            panel.style.height = '250px';
-                            document.documentElement.style.setProperty('--tab-height', '250px');
+                        if (currentHeight < 300) {
+                            panel.style.height = '300px';
+                            document.documentElement.style.setProperty('--tab-height', '300px');
                         }
                     } else {
                         // Hide row 2 directly
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         // Reduce height back to 37px if it was just fitting the expanded tabs
                         const currentHeight = panel.getBoundingClientRect().height;
-                        if (currentHeight <= 250) {
+                        if (currentHeight <= 300) {
                             panel.style.height = '37px';
                             document.documentElement.style.setProperty('--tab-height', '37px');
                         }
@@ -78,27 +78,71 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
+            
+            // Minimize button handler
+            const minimizeBtn = document.getElementById('btp-minimize-btn');
+            if (minimizeBtn) {
+                minimizeBtn.addEventListener('click', () => {
+                    panel.classList.remove('expanded-tabs');
+                    const row2 = document.getElementById('btp-tab-strip-2');
+                    if (row2) row2.style.display = 'none';
+                    
+                    // Reset to default height
+                    panel.style.height = '37px';
+                    document.documentElement.style.setProperty('--tab-height', '37px');
+                    
+                    if (typeof Q4Scene !== 'undefined' && Q4Scene.renderer) {
+                        setTimeout(() => {
+                            Q4Scene.renderer.setSize(window.innerWidth, window.innerHeight);
+                        }, 250);
+                    }
+                });
+            }
 
             // Resize
             resizeBar.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 resizeBar.classList.add('dragging');
+                panel.classList.add('dragging'); // Disable CSS transitions during drag
+                
                 const startY = e.clientY;
                 const startH = panel.getBoundingClientRect().height;
-                const minH = parseInt(getComputedStyle(panel).minHeight) || 0;
-                const maxH = window.innerHeight * 0.7;
+                const minH = parseInt(getComputedStyle(panel).minHeight) || 37;
+                const maxH = window.innerHeight * 0.9;
+                
+                let rafId = null;
+                let lastRendererUpdate = 0;
 
                 const onMove = (ev) => {
-                    const newH = Math.max(minH, Math.min(maxH, startH - (ev.clientY - startY)));
-                    panel.style.height = newH + 'px';
-                    document.documentElement.style.setProperty('--tab-height', newH + 'px');
-                    if (typeof Q4Scene !== 'undefined' && Q4Scene.renderer) {
-                        Q4Scene.renderer.setSize(window.innerWidth, window.innerHeight);
-                    }
+                    if (rafId) return;
+                    
+                    rafId = requestAnimationFrame(() => {
+                        const newH = Math.max(minH, Math.min(maxH, startH - (ev.clientY - startY)));
+                        panel.style.height = newH + 'px';
+                        document.documentElement.style.setProperty('--tab-height', newH + 'px');
+                        
+                        // Throttle renderer update (expensive)
+                        const now = Date.now();
+                        if (now - lastRendererUpdate > 50) { // Max 20fps for heavy 3D resize
+                            if (typeof Q4Scene !== 'undefined' && Q4Scene.renderer) {
+                                Q4Scene.renderer.setSize(window.innerWidth, window.innerHeight);
+                            }
+                            lastRendererUpdate = now;
+                        }
+                        rafId = null;
+                    });
                 };
 
                 const onUp = () => {
                     resizeBar.classList.remove('dragging');
+                    panel.classList.remove('dragging');
+                    if (rafId) cancelAnimationFrame(rafId);
+                    
+                    // Final precise renderer sync
+                    if (typeof Q4Scene !== 'undefined' && Q4Scene.renderer) {
+                        Q4Scene.renderer.setSize(window.innerWidth, window.innerHeight);
+                    }
+                    
                     window.removeEventListener('mousemove', onMove);
                     window.removeEventListener('mouseup', onUp);
                 };

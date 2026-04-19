@@ -170,13 +170,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `#${r}${g}${b}`;
             };
 
+            // Human-readable label for a panel element
+            const getPanelLabel = (el) => {
+                if (el.id === 'spotifyPillBox') return 'Spotify Music Pill';
+                if (el.id === 'bottom-tab-panel') return 'Bottom Tab Panel';
+                if (el.id === 'float-panel') return 'Floating Panel';
+                if (el.classList.contains('panel-top')) return 'Top Toolbar';
+                if (el.classList.contains('panel-bottom')) return 'Command Panel';
+                if (el.classList.contains('toolbar-left')) return 'Left Sidebar';
+                if (el.classList.contains('toolbar-right')) return 'Right Sidebar';
+                if (el.classList.contains('left-edge')) return 'Left Edge Panel';
+                if (el.classList.contains('right-edge')) return 'Right Edge Panel';
+                if (el.classList.contains('bottom-tab-panel')) return 'Bottom Tab Panel';
+                if (el.classList.contains('float-panel')) return 'Floating Panel';
+                return el.id || el.className.split(' ')[0] || 'Unknown Panel';
+            };
+
+            // State flags for a panel
+            const getPanelStateFlags = (el) => {
+                const flags = [];
+                if (el.classList.contains('locked')) flags.push('locked');
+                if (el.classList.contains('visible')) flags.push('visible');
+                if (el.classList.contains('hovered')) flags.push('hovered');
+                if (el.classList.contains('floating')) flags.push('floating');
+                if (el.classList.contains('docked-right')) flags.push('docked-right');
+                if (el.classList.contains('community-expanded')) flags.push('community-expanded');
+                if (el.classList.contains('qa-expanded')) flags.push('qa-expanded');
+                if (el.classList.contains('active')) flags.push('active');
+                if (el.classList.contains('closing')) flags.push('closing');
+                if (el.classList.contains('collapsed')) flags.push('collapsed');
+                if (el.classList.contains('mode-2d')) flags.push('mode-2d');
+                return flags;
+            };
+
             const extractPanelData = (el, type) => {
                 const rect = el.getBoundingClientRect();
                 const style = window.getComputedStyle(el);
+                const childButtons = el.querySelectorAll('button, .nav-btn, .edge-btn, .suggestion-chip');
+                const childInputs = el.querySelectorAll('input, textarea, .prompt-input');
                 return {
                     id: el.id || 'N/A',
+                    label: getPanelLabel(el),
                     type: type,
                     classes: Array.from(el.classList).join(' '),
+                    stateFlags: getPanelStateFlags(el),
                     visible: el.style.display !== 'none' && rect.width > 0,
                     size: { width: Math.round(rect.width), height: Math.round(rect.height) },
                     position: { top: Math.round(rect.top), left: Math.round(rect.left) },
@@ -184,7 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         bgColor: getRGBAsHex(style.backgroundColor),
                         color: getRGBAsHex(style.color),
                         zIndex: style.zIndex,
-                        opacity: style.opacity
+                        opacity: style.opacity,
+                        display: style.display,
+                        overflow: style.overflow,
+                        borderRadius: style.borderRadius,
+                    },
+                    interactiveElements: {
+                        buttons: childButtons.length,
+                        inputs: childInputs.length,
                     },
                     textContent: (el.innerText || '').substring(0, 1500).replace(/\s+/g, ' ').trim()
                 };
@@ -198,6 +242,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const activeTabs = [];
             document.querySelectorAll('.btp-tab.active').forEach(tab => {
                 activeTabs.push(tab.textContent.trim());
+            });
+
+            // All tabs (not just active)
+            const allTabs = [];
+            document.querySelectorAll('.btp-tab').forEach(tab => {
+                allTabs.push({
+                    label: tab.textContent.trim(),
+                    active: tab.classList.contains('active'),
+                    dataTab: tab.dataset.tab || 'N/A',
+                });
+            });
+
+            // Channel tabs state
+            const channelTabs = [];
+            document.querySelectorAll('.channel-tab').forEach(tab => {
+                channelTabs.push({
+                    channel: tab.dataset.channel || 'unknown',
+                    active: tab.classList.contains('active'),
+                    label: tab.textContent.trim(),
+                });
             });
 
             const bgPanels = [];
@@ -224,11 +288,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
+            // Feature states -- interactive component statuses
+            const cmdPanel = document.querySelector('.panel-bottom');
+            const groupSwitcher = document.getElementById('group-switcher');
+            const groupDropdown = document.getElementById('group-dropdown');
+            const spotifyPill = document.getElementById('spotifyPillBox');
+            const qaContainer = document.getElementById('qa-messages-container');
+            const globalViewToggle = document.getElementById('global-view-toggle');
+
+            const featureStates = {
+                commandPanel: {
+                    exists: !!cmdPanel,
+                    isFloating: cmdPanel ? cmdPanel.classList.contains('floating') : false,
+                    isDockedRight: cmdPanel ? cmdPanel.classList.contains('docked-right') : false,
+                    isCommunityExpanded: cmdPanel ? cmdPanel.classList.contains('community-expanded') : false,
+                    isQAExpanded: cmdPanel ? cmdPanel.classList.contains('qa-expanded') : false,
+                },
+                groupSwitcher: {
+                    exists: !!groupSwitcher,
+                    isOpen: groupDropdown ? groupDropdown.classList.contains('open') : false,
+                    activeGroup: groupSwitcher ? (groupSwitcher.querySelector('.group-name')?.textContent || 'N/A') : 'N/A',
+                },
+                spotifyPill: {
+                    exists: !!spotifyPill,
+                    visible: spotifyPill ? (spotifyPill.style.display !== 'none') : false,
+                },
+                qaPanel: {
+                    exists: !!qaContainer,
+                    hasContent: qaContainer ? qaContainer.children.length > 0 : false,
+                },
+                globalViewToggle: {
+                    exists: !!globalViewToggle,
+                    is2DMode: globalViewToggle ? globalViewToggle.classList.contains('mode-2d') : false,
+                },
+                threeDScene: {
+                    available: typeof Q4Scene !== 'undefined',
+                    bgGroupVisible: (typeof Q4Scene !== 'undefined' && Q4Scene.bgGroup) ? Q4Scene.bgGroup.visible : null,
+                    activeBackgroundIndex: typeof Q4Scene !== 'undefined' ? Q4Scene.activeBackgroundIndex : null,
+                },
+            };
+
+            // CSS custom properties (design token snapshot)
+            const rootStyle = getComputedStyle(document.documentElement);
+            const cssVariables = {
+                primaryColor: rootStyle.getPropertyValue('--primary-color').trim() || 'N/A',
+                aiBlue: rootStyle.getPropertyValue('--ai-blue').trim() || 'N/A',
+                accentGlow: rootStyle.getPropertyValue('--accent-glow').trim() || 'N/A',
+                textPrimary: rootStyle.getPropertyValue('--text-primary').trim() || 'N/A',
+                tabHeight: rootStyle.getPropertyValue('--tab-height').trim() || 'N/A',
+            };
+
             return {
+                capturedAt: new Date().toISOString(),
+                viewport: {
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    devicePixelRatio: window.devicePixelRatio,
+                },
                 theme: document.body.className.match(/\b(\w+-theme)\b/)?.[1] || 'unknown',
                 currentLayout: document.body.className.match(/\blayout-([\w-]+)\b/)?.[1] || 'single',
                 activeViewIndex: typeof Q4Scene !== 'undefined' ? Q4Scene.activeBackgroundIndex : null,
                 activeTabs: activeTabs,
+                allTabs: allTabs,
+                channelTabs: channelTabs,
+                cssVariables: cssVariables,
+                featureStates: featureStates,
                 uiPanels: uiPanels,
                 backgroundPanels: bgPanels,
                 background3DPrimitives: bg3DPrimitives,
@@ -261,6 +385,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             handleServerResponse(data, commandText);
+
+            // Capture post-action UI snapshot after a brief DOM settle delay
+            setTimeout(async () => {
+                try {
+                    const afterContext = buildDeepContext();
+                    await fetch(`${API_ORIGIN}/api/command/after-context`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ context: afterContext })
+                    });
+                } catch (e) {
+                    console.warn('After-context capture failed:', e);
+                }
+            }, 250);
 
             // Refresh history
             renderCommandHistory();

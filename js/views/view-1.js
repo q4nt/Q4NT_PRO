@@ -99,6 +99,7 @@ backgrounds[0] = function () {
     }
 
     // Dragging & Click-to-front raycasting
+    var MAX_CLICK_DISTANCE = 200; // Max distance (world units) from camera to allow interaction
     var _focusedPanel = null;
     var _draggedPanel = null;
     var _dragStartPos = new THREE.Vector3();
@@ -121,7 +122,7 @@ backgrounds[0] = function () {
         _panelRaycaster.setFromCamera(_panelMouse, cam);
         
         var intersects = _panelRaycaster.intersectObjects(panelMeshes, false);
-        if (intersects.length > 0) {
+        if (intersects.length > 0 && intersects[0].distance <= MAX_CLICK_DISTANCE) {
             _draggedPanel = intersects[0].object;
             // Prevent camera panning in scene.js
             if (Q4Scene.activeViews.length > 0 && Q4Scene.activeViews[0].paneState) {
@@ -151,7 +152,7 @@ backgrounds[0] = function () {
         _panelRaycaster.setFromCamera(_panelMouse, cam);
         
         var intersects = _panelRaycaster.intersectObjects(panelMeshes, false);
-        if (intersects.length > 0) {
+        if (intersects.length > 0 && intersects[0].distance <= MAX_CLICK_DISTANCE) {
             var hit = intersects[0].object;
             if (_focusedPanel === hit) {
                 hit.userData.targetZ = hit.userData.homeZ;
@@ -223,7 +224,7 @@ backgrounds[0] = function () {
         _panelRaycaster.setFromCamera(_panelMouse, cam);
         var intersects = _panelRaycaster.intersectObjects(panelMeshes, false);
         
-        if (intersects.length > 0) {
+        if (intersects.length > 0 && intersects[0].distance <= MAX_CLICK_DISTANCE) {
             var hit = intersects[0].object;
             if (_hoveredPanel !== hit) {
                 if (_hoveredPanel && _hoveredPanel !== _focusedPanel) {

@@ -53,11 +53,67 @@ class CommandLogger:
     MAX_HISTORY_SIZE = 500
 
     @staticmethod
-    def log_interaction(command: str, response: dict, process: dict = None, metrics: dict = None):
-        """Appends a new command interaction to the log file"""
+    def _build_ui_snapshot(context: dict) -> dict:
+        """
+        Distills the raw deep-context payload into a structured UI snapshot
+        suitable for before/after diffing in the command log.
+        """
+        if not context or not isinstance(context, dict):
+            return {"snapshot_available": False}
+
+        panels = context.get("uiPanels", [])
+        panel_summaries = []
+        for p in panels:
+            panel_summaries.append({
+                "id": p.get("id", "N/A"),
+                "label": p.get("label", "Unknown Panel"),
+                "type": p.get("type", "unknown"),
+                "classes": p.get("classes", ""),
+                "state_flags": p.get("stateFlags", []),
+                "visible": p.get("visible", False),
+                "size": p.get("size", {}),
+                "position": p.get("position", {}),
+                "style": p.get("style", {}),
+                "interactive_elements": p.get("interactiveElements", {}),
+                "content_preview": (p.get("textContent", "") or "")[:300],
+            })
+
+        return {
+            "snapshot_available": True,
+            "captured_at": context.get("capturedAt", datetime.now().isoformat()),
+            "viewport": context.get("viewport", {}),
+            "theme": context.get("theme", "unknown"),
+            "current_layout": context.get("currentLayout", "unknown"),
+            "active_view_index": context.get("activeViewIndex"),
+            "active_tabs": context.get("activeTabs", []),
+            "all_tabs": context.get("allTabs", []),
+            "channel_tabs": context.get("channelTabs", []),
+            "css_variables": context.get("cssVariables", {}),
+            "feature_states": context.get("featureStates", {}),
+            "panel_count": {
+                "total_ui": context.get("summary", {}).get("totalUIPanels", 0),
+                "visible_ui": context.get("summary", {}).get("visibleUIPanels", 0),
+                "background_panels": context.get("summary", {}).get("totalBgPanels", 0),
+                "background_3d_primitives": context.get("summary", {}).get("totalBgPrimitives", 0),
+            },
+            "panels": panel_summaries,
+            "background_objects_visible": any(
+                obj.get("visible", False)
+                for obj in context.get("background3DPrimitives", [])
+            ),
+        }
+
+    @staticmethod
+    def log_interaction(command: str, response: dict, process: dict = None,
+                        metrics: dict = None, ui_context_before: dict = None):
+        """Appends a new command interaction to the log file with full UI context"""
+        before_snapshot = CommandLogger._build_ui_snapshot(ui_context_before)
+
         entry = {
             "timestamp": datetime.now().isoformat(),
             "command": command,
+            "ui_context_before": before_snapshot,
+            "ui_context_after": None,
             "response": response,
             "process": process or {},
             "metrics": metrics or {}
@@ -82,6 +138,30 @@ class CommandLogger:
         # Write back with nice formatting
         with open(CommandLogger.LOG_FILE, "w") as f:
             json.dump(history, f, indent=4)
+
+    @staticmethod
+    def update_after_context(after_context: dict):
+        """
+        Updates the most recent log entry with the post-action UI snapshot.
+        Called by the frontend after the UI update has been applied.
+        """
+        if not os.path.exists(CommandLogger.LOG_FILE):
+            return False
+        try:
+            with open(CommandLogger.LOG_FILE, "r") as f:
+                history = json.load(f)
+            if not history or not isinstance(history, list):
+                return False
+
+            after_snapshot = CommandLogger._build_ui_snapshot(after_context)
+            history[-1]["ui_context_after"] = after_snapshot
+
+            with open(CommandLogger.LOG_FILE, "w") as f:
+                json.dump(history, f, indent=4)
+            return True
+        except Exception as e:
+            print(f"[CommandLogger] Error updating after-context: {e}")
+            return False
 
 # ---------------------------------------------------------------------------
 # Tier 2: AI Triage Agent  (gpt-4o-mini -- fast/cheap classification)
@@ -445,7 +525,7 @@ class AgentOrchestrator:
                 process_log["qa_agent"] = {
                     "execution_time_sec": round(qa_duration, 4)
                 }
-                CommandLogger.log_interaction(command, result, process_log, metrics)
+                CommandLogger.log_interaction(command, result, process_log, metrics, ui_context_before=context)
                 return result, process_log, metrics
             except Exception as e:
                 print(f"[AgentOrchestrator] QA Agent error: {e}")
@@ -486,7 +566,7 @@ class AgentOrchestrator:
                     "message": "Command not recognized. Try phrasing it differently or pick a suggestion:",
                 }],
             }
-            CommandLogger.log_interaction(command, fallback_response, process_log, metrics)
+            CommandLogger.log_interaction(command, fallback_response, process_log, metrics, ui_context_before=context)
             return fallback_response, process_log, metrics
 
         # ---- Validate ----
@@ -514,7 +594,7 @@ class AgentOrchestrator:
                     "message": msg,
                 }],
             }
-            CommandLogger.log_interaction(command, error_response, process_log, metrics)
+            CommandLogger.log_interaction(command, error_response, process_log, metrics, ui_context_before=context)
             return error_response, process_log, metrics
 
         # ---- Build UI actions ----
@@ -544,7 +624,7 @@ class AgentOrchestrator:
             "actions": actions
         }
 
-        CommandLogger.log_interaction(command, result, process_log, metrics)
+        CommandLogger.log_interaction(command, result, process_log, metrics, ui_context_before=context)
         return result, process_log, metrics
 
 # ---------------------------------------------------------------------------
@@ -565,6 +645,20 @@ async def handle_ui_command(request: Request):
 
         result, process, metrics = await AgentOrchestrator.execute(command, context)
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/command/after-context")
+async def update_after_context(request: Request):
+    """
+    Receives the post-action UI snapshot from the frontend and patches
+    the most recent command log entry with it.
+    """
+    try:
+        data = await request.json()
+        context = data.get("context", {})
+        success = CommandLogger.update_after_context(context)
+        return {"status": "ok" if success else "no_entry", "patched": success}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

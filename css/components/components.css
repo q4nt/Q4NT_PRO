@@ -62,7 +62,7 @@
     min-width: 160px;
     min-height: 200px;
     max-width: 600px;
-    background: rgba(255, 255, 255, 0.95);
+    background: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 14px;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
@@ -71,6 +71,7 @@
     flex-direction: column;
     overflow: hidden;
     user-select: none;
+    pointer-events: auto;
     transform-origin: center center;
     will-change: transform;
 }
@@ -416,10 +417,17 @@
     user-select: none;
     pointer-events: auto;
     transition: left 0.35s var(--ease-out-back), right 0.35s var(--ease-out-back), height 0.2s ease-out, min-height 0.2s ease-out;
+    will-change: height;
+    --strip-height: 37px; /* Single tab strip */
+}
+
+.bottom-tab-panel.dragging {
+    transition: left 0.35s var(--ease-out-back), right 0.35s var(--ease-out-back); /* Remove height transition while dragging */
 }
 
 .bottom-tab-panel.expanded-tabs {
     min-height: 250px;
+    --strip-height: 74px; /* Two tab strips visible */
 }
 
 .bottom-tab-panel.expanded-tabs .btp-tab-strip.row-2 {
@@ -509,11 +517,15 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 
 .btp-strip-actions {
     margin-left: auto;
-    display: flex;
+    display: none; /* Hidden by default */
     align-items: center;
     padding-right: 8px;
     gap: 4px;
     flex-shrink: 0;
+}
+
+.bottom-tab-panel.expanded-tabs .btp-strip-actions {
+    display: flex; /* Show when expanded */
 }
 
 .btp-strip-btn {
@@ -533,25 +545,33 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 .btp-strip-btn:hover { color: var(--text-primary); background: rgba(0, 0, 0, 0.06); }
 .btp-strip-btn svg { width: 14px; height: 14px; }
 
-.btp-content-area { flex: 1; overflow: hidden; position: relative; }
+.btp-content-area {
+    overflow: hidden;
+    position: relative;
+    height: calc(100% - var(--strip-height, 37px)); /* Explicit height: total panel minus tab strips */
+}
 
 .btp-pane {
     position: absolute;
     inset: 0;
-    padding: 12px 16px;
-    overflow-y: auto;
+    padding: 12px 16px 0 16px; /* Removed bottom padding */
+    overflow-y: hidden; /* Changed from auto to hidden to focus on horizontal scroll */
     display: none;
+    flex-direction: column; /* Ensure children can flex if needed */
     font-family: 'Inter', monospace, sans-serif;
     font-size: 0.78rem;
     color: var(--text-muted);
     line-height: 1.7;
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
+    box-sizing: border-box; /* Ensure padding is inside the inset-0 bounds */
 }
 
 .btp-pane::-webkit-scrollbar { width: 4px; }
 .btp-pane::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.08); border-radius: 2px; }
-.btp-pane.active { display: block; }
+.btp-pane.active { 
+    display: flex; /* Changed from block to flex to support the home-panels-container */
+}
 
 /* === Views Tabs (1-20) === */
 .q4-view-wrap {
@@ -780,22 +800,24 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 
 /* === Widget Panels (Home Tab Dashboard) === */
 .q4-widget-panel {
-    flex: 0 0 auto;
-    background: #1f1f1f;
+    background: #0a0a0a;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    width: 280px;
-    height: 180px;
+    height: 250px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    transition: border-color 0.2s, transform 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    pointer-events: auto;
 }
 
 .q4-widget-panel:hover {
-    border-color: rgba(0, 242, 254, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 100;
 }
 
 .q4-widget-header {
@@ -832,6 +854,43 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
     color: #fff;
 }
 
+.q4-widget-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.q4-widget-action-btn {
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.q4-widget-action-btn:hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.q4-widget-action-btn.q4-widget-star:hover {
+    color: #f5c518;
+}
+
+.q4-widget-action-btn.q4-widget-edit:hover {
+    color: #00f2fe;
+}
+
+.q4-widget-action-btn svg {
+    width: 12px;
+    height: 12px;
+}
+
 .q4-widget-content {
     flex: 1;
     padding: 14px;
@@ -844,20 +903,19 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 }
 
 .home-panels-container {
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+    gap: 8px;
     padding: 16px;
-    height: 100%;
-    min-height: 220px;
-    box-sizing: border-box;
-    overflow-x: auto;
-    overflow-y: hidden;
-    align-items: center;
     width: 100%;
-    position: absolute;
-    inset: 0;
-    z-index: 11;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 242, 254, 0.2) transparent;
 }
 
 /* === Notification Badge === */

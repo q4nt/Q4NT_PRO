@@ -123,56 +123,64 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // === Community Button (Expand Command Panel) ===
-        const communityBtn = document.querySelector('.community-btn');
-        if (communityBtn) {
-            communityBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const cmdPanel = document.querySelector('.panel-bottom');
-                if (!cmdPanel) return;
+        // === Generic Command Panel Expander ===
+        const toggleCmdPanel = (targetClass, btnEl) => {
+            const cmdPanel = document.querySelector('.panel-bottom');
+            if (!cmdPanel) return;
 
-                const isExpanding = !cmdPanel.classList.contains('community-expanded');
+            const isExpanding = !cmdPanel.classList.contains(targetClass);
+            const allStates = ['community-expanded', 'qa-expanded', 'openai-expanded', 'detect-expanded'];
+            
+            // If another state is active, we don't animate height, just swap class
+            const isAnyExpanded = allStates.some(cls => cmdPanel.classList.contains(cls));
 
-                if (cmdPanel.classList.contains('qa-expanded')) {
-                    cmdPanel.classList.remove('qa-expanded');
-                    if (isExpanding) {
-                        cmdPanel.classList.add('community-expanded');
-                        communityBtn.classList.add('active');
-                    } else {
-                        // Collapse it
-                        const collapsedH = 100;
-                        const newTop = cmdPanel.getBoundingClientRect().top + (cmdPanel.getBoundingClientRect().height - collapsedH);
-                        cmdPanel.style.height = '';
-                        cmdPanel.style.top = newTop + 'px';
-                        cmdPanel.style.bottom = 'auto';
-                        communityBtn.classList.remove('active');
-                    }
-                    return;
-                }
+            allStates.forEach(cls => cmdPanel.classList.remove(cls));
+            
+            const btns = [document.querySelector('.community-btn'), document.querySelector('.right-openai-btn'), document.querySelector('.right-detect-btn')];
+            btns.forEach(b => { if (b) b.classList.remove('active'); });
 
-                // Snapshot the current bottom edge before any class change
-                const rect = cmdPanel.getBoundingClientRect();
+            const rect = cmdPanel.getBoundingClientRect();
+            const collapsedH = 100;
+            const expandedH  = 380;
 
-                // Expanded height is 380px, collapsed is 100px (match CSS)
-                const collapsedH = 100;
-                const expandedH  = 380;
-
-                if (isExpanding) {
-                    // Lock bottom by computing the top that keeps the bottom edge fixed
+            if (isExpanding) {
+                if (!isAnyExpanded) {
                     const newTop = rect.top - (expandedH - rect.height);
                     cmdPanel.style.height = expandedH + 'px';
                     cmdPanel.style.top    = newTop + 'px';
                     cmdPanel.style.bottom = 'auto';
-                } else {
-                    // Shrinking: move top back down by the same delta
-                    const newTop = rect.top + (rect.height - collapsedH);
-                    cmdPanel.style.height = '';
-                    cmdPanel.style.top    = newTop + 'px';
-                    cmdPanel.style.bottom = 'auto';
                 }
+                cmdPanel.classList.add(targetClass);
+                if (btnEl) btnEl.classList.add('active');
+            } else {
+                const newTop = rect.top + (rect.height - collapsedH);
+                cmdPanel.style.height = '';
+                cmdPanel.style.top    = newTop + 'px';
+                cmdPanel.style.bottom = 'auto';
+            }
+        };
 
-                cmdPanel.classList.toggle('community-expanded');
-                communityBtn.classList.toggle('active');
+        const communityBtn = document.querySelector('.community-btn');
+        if (communityBtn) {
+            communityBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCmdPanel('community-expanded', communityBtn);
+            });
+        }
+
+        const openaiBtn = document.querySelector('.right-openai-btn');
+        if (openaiBtn) {
+            openaiBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCmdPanel('openai-expanded', openaiBtn);
+            });
+        }
+
+        const detectBtn = document.querySelector('.right-detect-btn');
+        if (detectBtn) {
+            detectBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCmdPanel('detect-expanded', detectBtn);
             });
         }
 
