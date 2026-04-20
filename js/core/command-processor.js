@@ -14,9 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const messagesContainer = document.querySelector('.community-messages-container');
 
     // Dynamic origin for multi-instance support (no hardcoded localhost)
-    const API_ORIGIN = window.location.origin.includes('file://')
-        ? 'http://localhost:8000'
-        : window.location.origin;
+    const API_ORIGIN = (typeof Q4Config !== 'undefined' && Q4Config.API_BASE) 
+        ? Q4Config.API_BASE 
+        : (window.location.origin.includes('file://') ? 'http://localhost:8000' : window.location.origin);
 
     if (!promptInput || !sendBtn) {
         console.warn('Command Processor: Could not find prompt input or send button.');
@@ -198,7 +198,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const buildDeepContext = () => {
+        // Throttled context builder: caches the snapshot for 500ms to avoid
+        // redundant full DOM + Three.js scene traversals. The before/after pair
+        // is 250ms apart, so fresh captures are guaranteed for each command.
+        var _contextCache = null;
+        var _contextCacheTime = 0;
+        var CONTEXT_CACHE_TTL = 500; // ms
+
+        const buildDeepContext = (forceRefresh) => {
+            var now = Date.now();
+            if (!forceRefresh && _contextCache && (now - _contextCacheTime < CONTEXT_CACHE_TTL)) {
+                return _contextCache;
+            }
+
             const getRGBAsHex = (rgb) => {
                 if (!rgb) return 'N/A';
                 const match = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
@@ -377,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tabHeight: rootStyle.getPropertyValue('--tab-height').trim() || 'N/A',
             };
 
-            return {
+            var _result = {
                 capturedAt: new Date().toISOString(),
                 viewport: {
                     width: window.innerWidth,
@@ -402,6 +414,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     totalBgPrimitives: bg3DPrimitives.length
                 }
             };
+
+            // Cache for throttle
+            _contextCache = _result;
+            _contextCacheTime = Date.now();
+            return _result;
         };
 
         const context = buildDeepContext();
@@ -428,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Capture post-action UI snapshot after a brief DOM settle delay
             setTimeout(async () => {
                 try {
-                    const afterContext = buildDeepContext();
+                    const afterContext = buildDeepContext(true); // Force fresh snapshot post-action
                     await fetch(`${API_ORIGIN}/api/command/after-context`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

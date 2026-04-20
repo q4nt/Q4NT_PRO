@@ -40,6 +40,13 @@ var _introZoom = { startZ: 300, endZ: 80, duration: 1500, startTime: -1, done: f
 var BASE_Z = 80;
 
 function _clampCameraOffset(tx, ty) {
+    if (Q4Scene.activeBackgroundIndex === 21) {
+        // Relax constraints for the expanded 2D grid view
+        return {
+            x: Math.max(-200, Math.min(200, tx)),
+            y: Math.max(-200, Math.min(200, ty))
+        };
+    }
     var p = 40;
     return {
         x: Math.max(_panelBounds.minX - p, Math.min(_panelBounds.maxX + p, tx)),
@@ -67,10 +74,12 @@ function initViews(paneElements) {
         var onWheel = function(e) {
             e.preventDefault();
             var oldD = paneState.targetDepth;
-            // In 2D Grid view (bg 21): clamp so camera never passes the dot grid plane at Z=-60
-            // BASE_Z=80, GRID_Z=-60 → max depth = 80-(-60)-2 = 138
-            var maxDepth = (Q4Scene.activeBackgroundIndex === 21) ? 138 : 1280;
-            var newD = Math.max(0, Math.min(maxDepth, oldD + (-e.deltaY * 0.18)));
+            // In 2D Grid view (bg 21): constrain zoom range
+            // Limit zoom in: maxDepth 60 means camera stops at Z=20 (80 units from grid)
+            var maxDepth = (Q4Scene.activeBackgroundIndex === 21) ? 60 : 1280;
+            // Limit zoom out: minDepth -400 means camera stops at Z=480
+            var minDepth = (Q4Scene.activeBackgroundIndex === 21) ? -400 : 0;
+            var newD = Math.max(minDepth, Math.min(maxDepth, oldD + (-e.deltaY * 0.18)));
             paneState.targetDepth = newD;
             var ad = newD - oldD;
             if (Math.abs(ad) > 0.001) {
@@ -97,9 +106,10 @@ function initViews(paneElements) {
         };
         var onMM = function(e) {
             if (!paneState.isDragging) return;
+            var panSpeed = (Q4Scene.activeBackgroundIndex === 21) ? 0.25 : 0.1;
             var c = _clampCameraOffset(
-                paneState.targetCameraOffset.x - (e.clientX - paneState.previousMousePosition.x) * 0.1,
-                paneState.targetCameraOffset.y + (e.clientY - paneState.previousMousePosition.y) * 0.1
+                paneState.targetCameraOffset.x - (e.clientX - paneState.previousMousePosition.x) * panSpeed,
+                paneState.targetCameraOffset.y + (e.clientY - paneState.previousMousePosition.y) * panSpeed
             );
             paneState.targetCameraOffset.x = c.x; paneState.targetCameraOffset.y = c.y;
             paneState.previousMousePosition.x = e.clientX; paneState.previousMousePosition.y = e.clientY;
@@ -203,18 +213,11 @@ function startAnimationLoop() {
                     var st = v.paneState;
                     st.scrollDepth += (st.targetDepth - st.scrollDepth) * 0.12;
                     cam.position.z = _introZoom.endZ - st.scrollDepth;
-                    // In 2D Grid view: lock pan — grid stays fixed, only zoom allowed
-                    if (Q4Scene.activeBackgroundIndex !== 21) {
-                        var pl = st.isDragging ? 0.2 : 0.12;
-                        st.cameraOffset.x += (st.targetCameraOffset.x - st.cameraOffset.x) * pl;
-                        st.cameraOffset.y += (st.targetCameraOffset.y - st.cameraOffset.y) * pl;
-                        cam.position.x = st.cameraOffset.x; cam.position.y = st.cameraOffset.y;
-                    } else {
-                        // Reset any accumulated offset so camera stays centred on grid
-                        st.cameraOffset.x = 0; st.cameraOffset.y = 0;
-                        st.targetCameraOffset.x = 0; st.targetCameraOffset.y = 0;
-                        cam.position.x = 0; cam.position.y = 0;
-                    }
+                    // Allow panning in all views
+                    var pl = st.isDragging ? 0.2 : 0.12;
+                    st.cameraOffset.x += (st.targetCameraOffset.x - st.cameraOffset.x) * pl;
+                    st.cameraOffset.y += (st.targetCameraOffset.y - st.cameraOffset.y) * pl;
+                    cam.position.x = st.cameraOffset.x; cam.position.y = st.cameraOffset.y;
                 }
             }
             cam.lookAt(cam.position.x, cam.position.y, cam.position.z - 80);

@@ -5,26 +5,16 @@
 
 var PolygonAPI = (function () {
 
-    var baseUrl = 'https://api.polygon.io';
-    var apiKey = '';
-    var _cache = ApiCache.create(5 * 60 * 1000); // 5 minutes
-
-    var _proxyMode = false;
-    function setApiKey(key) { apiKey = key; }
-    function setBaseUrl(url) { baseUrl = url.replace(/\/$/, ''); }
-    function setProxyMode(proxyBaseUrl) {
-        baseUrl = proxyBaseUrl.replace(/\/$/, '');
-        apiKey = '';  // Backend injects the key server-side
-        _proxyMode = true;
-    }
+    // All requests route through the backend proxy — credentials are injected server-side.
+    // Direct calls to api.polygon.io are never made from the browser.
+    var baseUrl = typeof Q4Config !== 'undefined'
+        ? (Q4Config.API_BASE + '/api/polygon')
+        : 'http://127.0.0.1:8000/api/polygon';
+    var _cache = ApiCache.create(60 * 1000); // 1 minute
 
     function request(path, params) {
         var p = params || {};
-        if (apiKey) p.apiKey = apiKey;
-        // In proxy mode, the path becomes the upstream URL path (e.g. /api/polygon/v2/aggs/...)
-        var url = _proxyMode
-            ? ApiCache.buildUrl(baseUrl, path, p)
-            : ApiCache.buildUrl(baseUrl, path, p);
+        var url = ApiCache.buildUrl(baseUrl, path, p);
         return ApiCache.fetchCached(url, _cache, 'Polygon API');
     }
 
@@ -159,7 +149,6 @@ var PolygonAPI = (function () {
     }
 
     return {
-        setApiKey: setApiKey, setBaseUrl: setBaseUrl, setProxyMode: setProxyMode,
         aggregates: aggregates, prevClose: prevClose, tickerDetails: tickerDetails,
         tickerSearch: tickerSearch, snapshotAll: snapshotAll, snapshot: snapshot,
         news: news, health: health,

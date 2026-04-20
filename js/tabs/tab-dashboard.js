@@ -75,9 +75,9 @@
                             position: fixed;
                             z-index: 99999;
                             pointer-events: none;
-                            background: rgba(10, 10, 10, 0.85);
-                            color: #a0a0a0;
-                            border: 1px solid rgba(255, 255, 255, 0.15);
+                            background: rgba(255, 255, 255, 0.85);
+                            color: #444;
+                            border: 1px solid rgba(0, 0, 0, 0.15);
                             border-radius: 10px;
                             padding: 10px 20px;
                             font-size: 11px;
@@ -85,7 +85,7 @@
                             letter-spacing: 0.5px;
                             text-transform: uppercase;
                             font-family: 'Inter', sans-serif;
-                            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+                            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
                             backdrop-filter: blur(8px);
                             transition: opacity 0.15s;
                         `;

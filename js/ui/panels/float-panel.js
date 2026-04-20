@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const closeBtn = document.getElementById('float-panel-close');
 
         if (fp && header && closeBtn) {
+            fp.style.willChange = 'left, top, width, height';
             // Close with flick animation
             closeBtn.addEventListener('click', () => {
                 fp.classList.add('closing');

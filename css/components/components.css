@@ -92,6 +92,8 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     cursor: grab;
     flex-shrink: 0;
+    overflow: hidden;
+    transition: height 0.3s 3s, padding 0.3s 3s, opacity 0.3s 3s, border-color 0.3s 3s;
 }
 
 .float-panel-header:active { cursor: grabbing; }
@@ -243,6 +245,8 @@
     border-bottom:   1px solid rgba(0, 0, 0, 0.06);
     cursor:          grab;
     flex-shrink:     0;
+    overflow:        hidden;
+    transition:      height 0.3s 3s, padding 0.3s 3s, opacity 0.3s 3s, border-color 0.3s 3s;
 }
 .gv-panel-header:active { cursor: grabbing; }
 
@@ -948,23 +952,23 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 
 /* === Widget Panels (Home Tab Dashboard) === */
 .q4-widget-panel {
-    background: #0a0a0a;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 12px;
     height: 250px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     pointer-events: auto;
 }
 
 .q4-widget-panel:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     z-index: 100;
 }
 
@@ -974,22 +978,47 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
     justify-content: space-between;
     padding: 0 14px;
     height: 38px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.02);
+    /* Auto-collapse transitions */
+    overflow: hidden;
+    transition: height 0.3s 3s, padding 0.3s 3s, opacity 0.3s 3s, border-color 0.3s 3s;
 }
 
 .q4-widget-title {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    color: #a0a0a0;
+    color: #444;
     text-transform: uppercase;
+    pointer-events: none;
+}
+
+/* Universal Panel Header Auto-collapse Logic */
+.q4-widget-panel:not(:hover):not(.locked-header) .q4-widget-header,
+.gv-panel:not(:hover):not(.locked-header) .gv-panel-header,
+.float-panel:not(:hover):not(.locked-header) .float-panel-header {
+    height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    border-bottom-color: transparent;
+}
+
+/* Instant reveal on hover or when locked */
+.q4-widget-panel:hover .q4-widget-header,
+.gv-panel:hover .gv-panel-header,
+.float-panel:hover .float-panel-header,
+.q4-widget-panel.locked-header .q4-widget-header,
+.gv-panel.locked-header .gv-panel-header,
+.float-panel.locked-header .float-panel-header {
+    transition: height 0.3s 0s, padding 0.3s 0s, opacity 0.3s 0s, border-color 0.3s 0s;
 }
 
 .q4-widget-close {
     background: none;
     border: none;
-    color: #666;
+    color: #888;
     cursor: pointer;
     padding: 4px;
     display: flex;
@@ -999,7 +1028,7 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 }
 
 .q4-widget-close:hover {
-    color: #fff;
+    color: #333;
 }
 
 .q4-widget-actions {
@@ -1011,7 +1040,7 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 .q4-widget-action-btn {
     background: none;
     border: none;
-    color: #555;
+    color: #888;
     cursor: pointer;
     padding: 4px;
     display: flex;
@@ -1022,8 +1051,8 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 }
 
 .q4-widget-action-btn:hover {
-    color: #ccc;
-    background: rgba(255, 255, 255, 0.06);
+    color: #333;
+    background: rgba(0, 0, 0, 0.06);
 }
 
 .q4-widget-action-btn.q4-widget-star:hover {
@@ -1042,12 +1071,12 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
 .q4-widget-content {
     flex: 1;
     padding: 14px;
-    color: #777;
+    color: #333;
     font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, transparent 100%);
+    background: linear-gradient(180deg, rgba(0,0,0,0.01) 0%, transparent 100%);
     position: relative;
     overflow: hidden;
 }

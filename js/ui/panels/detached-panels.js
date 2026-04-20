@@ -17,6 +17,7 @@ window.DetachedPanels = (function() {
         fp.style.width = '320px';
         fp.style.height = '240px';
         fp.style.zIndex = '10000';
+        fp.style.willChange = 'left, top, width, height';
 
         const closeSvg = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
         const minimizeSvg = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
@@ -55,7 +56,8 @@ window.DetachedPanels = (function() {
         fp.appendChild(resB);
         fp.appendChild(resBR);
 
-        document.getElementById('ui-container').appendChild(fp);
+        let container = document.getElementById('ui-container') || document.body;
+        container.appendChild(fp);
 
         // Logic
         closeBtn.onclick = () => {

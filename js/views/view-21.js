@@ -1,5 +1,5 @@
 /* View 21 - Node Network: command-panel-styled cards connected by proximity edges */
-backgrounds[20] = function () {
+ViewFactory.register(20, function () {
     var bgGroup = Q4Scene.bgGroup;
 
     var NODE_COUNT   = 30;
@@ -64,104 +64,6 @@ backgrounds[20] = function () {
         ctx.strokeStyle = 'rgba(0,0,0,0.08)';
         ctx.lineWidth   = 1.5;
         ctx.stroke();
-
-        // Accent top bar (thin strip at top, in card's accent color)
-        ctx.fillStyle = accentHex;
-        ctx.globalAlpha = 0.85;
-        ctx.fillRect(2, 4, S - 4, 5);
-        ctx.globalAlpha = 1;
-
-        // ---- Header bar ----
-        ctx.fillStyle = 'rgba(0,0,0,0.03)';
-        ctx.fillRect(2, 9, S - 4, 44);
-        ctx.strokeStyle = 'rgba(0,0,0,0.06)';
-        ctx.lineWidth   = 1;
-        ctx.beginPath(); ctx.moveTo(2, 53); ctx.lineTo(S - 2, 53); ctx.stroke();
-
-        // Group name
-        var group = GROUPS[groupIdx % GROUPS.length];
-        ctx.fillStyle    = 'rgba(0,0,0,0.80)';
-        ctx.font         = '600 16px Inter, Arial, sans-serif';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(group, 16, 31);
-
-        // Chevron
-        var gw = ctx.measureText(group).width;
-        ctx.strokeStyle = 'rgba(0,0,0,0.35)';
-        ctx.lineWidth   = 1.8;
-        ctx.beginPath();
-        ctx.moveTo(16 + gw + 9, 27);
-        ctx.lineTo(16 + gw + 15, 35);
-        ctx.lineTo(16 + gw + 21, 27);
-        ctx.stroke();
-
-        // Channel tabs
-        var chans = CHANNELS[groupIdx % CHANNELS.length];
-        var tabX  = 16;
-        var tabY  = 64;
-        chans.forEach(function(ch, ci) {
-            var tw = ctx.measureText(ch).width + 18;
-            if (ci === 0) {
-                ctx.fillStyle   = accentHex;
-                ctx.globalAlpha = 0.12;
-                ctx.fillRect(tabX, tabY - 5, tw, 22);
-                ctx.globalAlpha = 1;
-                ctx.fillStyle = accentHex;
-                ctx.font = '600 12px Inter, Arial, sans-serif';
-            } else {
-                ctx.fillStyle = 'rgba(0,0,0,0.38)';
-                ctx.font = '400 12px Inter, Arial, sans-serif';
-            }
-            ctx.fillText(ch, tabX + 9, tabY + 6);
-            tabX += tw + 6;
-        });
-
-        // Divider
-        ctx.strokeStyle = 'rgba(0,0,0,0.07)';
-        ctx.lineWidth   = 1;
-        ctx.beginPath(); ctx.moveTo(2, 86); ctx.lineTo(S - 2, 86); ctx.stroke();
-
-        // ---- Message rows ----
-        var msgY    = 100;
-        var msgCount = 2;  // fewer rows to fit thinner card
-        var avatarColors = ['#007AFF','#2E7D6F','#C4553A','#C49B3C','#8b5cf6','#00b4d8'];
-        for (var m = 0; m < msgCount; m++) {
-            var user = USERS[(msgOffset + m) % USERS.length];
-            var msg  = MSGS[(msgOffset + m * 2) % MSGS.length];
-
-            // Avatar
-            ctx.fillStyle = avatarColors[(groupIdx + m) % avatarColors.length];
-            ctx.beginPath(); ctx.arc(24, msgY + 10, 11, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#fff';
-            ctx.font = '700 10px Inter, Arial, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(user[0], 24, msgY + 14);
-            ctx.textAlign = 'left';
-
-            // Username
-            ctx.fillStyle = 'rgba(0,0,0,0.82)';
-            ctx.font      = '600 12px Inter, Arial, sans-serif';
-            ctx.fillText(user, 42, msgY + 7);
-
-            // Timestamp
-            ctx.fillStyle = 'rgba(0,0,0,0.30)';
-            ctx.font      = '400 10px Inter, Arial, sans-serif';
-            var uw = ctx.measureText(user).width;
-            ctx.fillText('Today ' + (11 + m) + ':' + (15 + m * 7) + ' PM', 42 + uw + 8, msgY + 7);
-
-            // Message text
-            ctx.fillStyle = 'rgba(0,0,0,0.50)';
-            ctx.font      = '400 11px Inter, Arial, sans-serif';
-            // Simple truncation
-            var maxW = S - 58;
-            var txt  = msg;
-            while (ctx.measureText(txt).width > maxW && txt.length > 10) txt = txt.slice(0, -1);
-            if (txt !== msg) txt += '...';
-            ctx.fillText(txt, 42, msgY + 22);
-
-            msgY += 44;
-            if (msgY > H - 12) break;
-        }
 
         return new THREE.CanvasTexture(cv);
     }
@@ -276,4 +178,4 @@ backgrounds[20] = function () {
             e.mat.opacity = e.baseOpa * pulse;
         });
     };
-};
+});

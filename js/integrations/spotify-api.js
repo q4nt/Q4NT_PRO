@@ -42,7 +42,8 @@ class SpotifyPillController {
         if (!stack) {
             stack = document.createElement('div');
             stack.id = 'bottomRightStack';
-            document.getElementById('ui-container').appendChild(stack);
+            let container = document.getElementById('ui-container') || document.body;
+            container.appendChild(stack);
         }
 
         const pillHTML = `
@@ -113,7 +114,8 @@ class SpotifyPillController {
     // ------------------------------------------------------------------
     async _fetchTracks() {
         try {
-            const res  = await fetch('http://localhost:8000/api/spotify/search?q=Free Bird');
+            const apiBase = (typeof Q4Config !== 'undefined' && Q4Config.API_BASE) ? Q4Config.API_BASE : 'http://localhost:8000';
+            const res  = await fetch(`${apiBase}/api/spotify/search?q=Free Bird`);
             const data = await res.json();
             this.trackList = data.tracks.items;
             if (this.trackList.length > 0) this._loadTrack(0);

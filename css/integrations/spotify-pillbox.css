@@ -1,0 +1,138 @@
+#spotifyPillBox {
+    height: 40px; /* Reduced height from 54px */
+    width: auto;
+    min-width: 180px; /* Reduced from 220px */
+    background: #121212;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px 0 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Deprecated selector from when spotify was stand-alone. Now #bottomRightStack is used */
+
+@keyframes spotifyPillSlideIn {
+    0% { transform: translateY(100px) scale(0.8); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Circle Button (Left) - Scaled down */
+.sp-main-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.sp-main-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: scale(1.05);
+}
+
+.sp-main-btn svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+}
+
+/* Track Info (Center) - Smaller text */
+.sp-info {
+    margin-left: 10px;
+    margin-right: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sp-track-name {
+    color: white;
+    font-size: 13px; /* Reduced from 15px */
+    font-weight: 700;
+    margin-bottom: 0;
+    line-height: 1.1;
+}
+
+.sp-artist-name {
+    color: #999;
+    font-size: 11px; /* Reduced from 13px */
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+/* Equalizer (Right) - Smaller bars */
+.sp-eq-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 10px;
+    margin-left: auto;
+}
+
+.eq-bar {
+    width: 3px;
+    background: #1DB954;
+    border-radius: 1.5px;
+    height: 4px;
+}
+
+.playing .eq-bar {
+    animation: eq-anim 0.5s ease-in-out infinite alternate;
+}
+
+.playing .eq-bar:nth-child(1) { animation-duration: 0.4s; height: 6px; }
+.playing .eq-bar:nth-child(2) { animation-duration: 0.6s; height: 10px; }
+.playing .eq-bar:nth-child(3) { animation-duration: 0.5s; height: 8px; }
+.playing .eq-bar:nth-child(4) { animation-duration: 0.7s; height: 12px; }
+
+@keyframes eq-anim {
+    0% { height: 4px; }
+    100% { height: 12px; }
+}
+
+/* Expanded Controls on Hover */
+.sp-controls-expanded {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 0;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.4s var(--ease-out-expo);
+}
+
+#spotifyPillBox:hover .sp-controls-expanded {
+    width: 60px;
+    opacity: 1;
+    margin-left: 10px;
+}
+
+.sp-sub-btn {
+    background: transparent;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.sp-sub-btn:hover {
+    color: white;
+}
+
+.sp-sub-btn svg {
+    width: 14px;
+    height: 14px;
+}

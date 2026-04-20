@@ -13,17 +13,28 @@ var Q4Config = (function () {
     // ---------------------------------------------------------------------------
     // Environment Detection
     // ---------------------------------------------------------------------------
-    var hostname = window.location.hostname || '127.0.0.1';
+    var hostname = (typeof window !== 'undefined' && window.location) ? window.location.hostname : '127.0.0.1';
     var isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
     var environment = isLocalhost ? 'development' : 'production';
 
     // ---------------------------------------------------------------------------
     // API Base URL
     // ---------------------------------------------------------------------------
+    // API_BASE is deterministically set from the environment.
     // In development, the FastAPI server runs on port 8000.
-    // In production, this should point to the deployed API gateway.
-    var storedBase = localStorage.getItem('q4nt_api_base');
-    var API_BASE = storedBase || (isLocalhost ? 'http://127.0.0.1:8000' : '');
+    // In production, this points to the deployed API gateway via dynamic origin detection.
+    var API_BASE = '';
+    if (typeof window !== 'undefined' && window.location) {
+        if (isLocalhost || /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(hostname)) {
+            API_BASE = window.location.protocol + '//' + hostname + ':8000';
+            environment = 'development';
+            isLocalhost = true;
+        } else {
+            API_BASE = window.location.origin;
+        }
+    } else {
+        API_BASE = 'http://127.0.0.1:8000';
+    }
 
     // ---------------------------------------------------------------------------
     // Feature Flags
@@ -43,19 +54,8 @@ var Q4Config = (function () {
     var DEFAULT_WATCHLIST = ['AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN', 'GOOG', 'META', 'JPM'];
 
     // ---------------------------------------------------------------------------
-    // API Keys (read from localStorage, never hardcoded)
+    // API Keys (Removed due to security risk - Use backend proxy instead)
     // ---------------------------------------------------------------------------
-    function getApiKey(name) {
-        return localStorage.getItem('q4nt_key_' + name) || '';
-    }
-
-    function setApiKey(name, key) {
-        if (key) {
-            localStorage.setItem('q4nt_key_' + name, key);
-        } else {
-            localStorage.removeItem('q4nt_key_' + name);
-        }
-    }
 
     // ---------------------------------------------------------------------------
     // Public Interface
@@ -66,17 +66,6 @@ var Q4Config = (function () {
         IS_DEV:            isLocalhost,
         FEATURES:          FEATURES,
         DEFAULT_WATCHLIST: DEFAULT_WATCHLIST,
-
-        // API key management
-        getApiKey:  getApiKey,
-        setApiKey:  setApiKey,
-
-        // Runtime overrides
-        setApiBase: function (url) {
-            API_BASE = url.replace(/\/$/, '');
-            Q4Config.API_BASE = API_BASE;
-            localStorage.setItem('q4nt_api_base', API_BASE);
-        },
 
         // Debug helper
         dump: function () {

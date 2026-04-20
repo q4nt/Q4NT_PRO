@@ -1,5 +1,5 @@
 /* View 22 - 2D Grid: 4K dot matrix + draggable/resizable DOM panel overlay */
-backgrounds[21] = function () {
+ViewFactory.register(21, function () {
     var bgGroup = Q4Scene.bgGroup;
 
     // ---------------------------------------------------------------
@@ -9,8 +9,8 @@ backgrounds[21] = function () {
     // ---------------------------------------------------------------
     var GRID_Z   = -60;
     var SPACING  = 5;          // ~25 screen-px at camera distance 140
-    var GRID_W   = 760;        // ≈ 3840 px equivalent
-    var GRID_H   = 430;        // ≈ 2160 px equivalent
+    var GRID_W   = 1520;       // ≈ 7680 px equivalent (2x)
+    var GRID_H   = 1290;       // ≈ 6480 px equivalent (3x)
 
     var cols  = Math.round(GRID_W / SPACING) + 1;
     var rows  = Math.round(GRID_H / SPACING) + 1;
@@ -68,25 +68,23 @@ backgrounds[21] = function () {
         { title: 'Analytics',    w: 220, h: 150, x: 340, y: 60  },
         { title: 'Signals',      w: 220, h: 150, x: 600, y: 90  },
         { title: 'Portfolio',    w: 220, h: 150, x: 860, y: 70  },
-        { title: 'Watchlist',    w: 220, h: 150, x: 1120,y: 85  },
-        { title: 'Flow Desk',    w: 220, h: 150, x: 80,  y: 280 },
-        { title: 'Risk View',    w: 220, h: 150, x: 340, y: 260 },
-        { title: 'Positions',    w: 220, h: 150, x: 600, y: 280 },
-        { title: 'Alpha',        w: 220, h: 150, x: 860, y: 265 },
-        { title: 'Sentiment',    w: 220, h: 150, x: 1120,y: 275 },
-        { title: 'Orders',       w: 220, h: 150, x: 80,  y: 470 },
-        { title: 'Depth',        w: 220, h: 150, x: 340, y: 460 },
-        { title: 'P&L',          w: 220, h: 150, x: 600, y: 475 },
-        { title: 'Options',      w: 220, h: 150, x: 860, y: 462 },
-        { title: 'Macro',        w: 220, h: 150, x: 1120,y: 470 },
-        { title: 'Scanner',      w: 220, h: 150, x: 80,  y: 660 },
-        { title: 'Calendar',     w: 220, h: 150, x: 340, y: 650 },
-        { title: 'News',         w: 220, h: 150, x: 600, y: 665 },
-        { title: 'Telemetry',    w: 220, h: 150, x: 860, y: 655 },
-        { title: 'ABCD',         w: 220, h: 150, x: 1120,y: 660 },
+        { title: 'Watchlist',    w: 220, h: 150, x: 1120,y: 85  }
     ];
 
     var _container = document.getElementById('ui-container');
+    
+    var _wrapper = document.createElement('div');
+    _wrapper.id = 'gv-panel-wrapper';
+    _wrapper.style.position = 'fixed';
+    _wrapper.style.left = '0';
+    _wrapper.style.top = '0';
+    _wrapper.style.width = '100vw';
+    _wrapper.style.height = '100vh';
+    _wrapper.style.pointerEvents = 'none'; // let clicks pass through to 3d canvas
+    _wrapper.style.transformOrigin = 'center center';
+    _wrapper.style.zIndex = '50';
+    _container.appendChild(_wrapper);
+
     var _panels    = [];
 
     function _makeDraggable(el, handle) {
@@ -142,31 +140,39 @@ backgrounds[21] = function () {
         var el = document.createElement('div');
         el.className = 'gv-panel';
         el.style.cssText = [
-            'position:fixed',
+            'position:absolute',
             'left:'   + def.x + 'px',
             'top:'    + def.y + 'px',
             'width:'  + def.w + 'px',
             'height:' + def.h + 'px',
-            'z-index:' + _zTop,
+            'pointer-events:auto'
         ].join(';');
 
         // Header
         var hdr = document.createElement('div');
-        hdr.className = 'gv-panel-header';
+        hdr.className = 'q4-widget-header gv-panel-header'; // Keep gv-panel-header for dragging
 
-        var title = document.createElement('span');
-        title.className = 'gv-panel-title';
-        title.textContent = def.title;
+        const closeSvg = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+        const minimizeSvg = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+        const editSvg = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+        const starSvg = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
 
-        var close = document.createElement('button');
-        close.className = 'gv-close';
-        close.innerHTML = '&times;';
+        hdr.innerHTML = `
+            <span class="q4-widget-title">${def.title}</span>
+            <div class="q4-widget-actions">
+                <button class="q4-widget-action-btn q4-widget-star" title="Star">${starSvg}</button>
+                <button class="q4-widget-action-btn q4-widget-edit" title="Edit">${editSvg}</button>
+                <button class="q4-widget-action-btn q4-widget-minimize" title="Minimize">${minimizeSvg}</button>
+                <button class="q4-widget-close gv-close" title="Close">${closeSvg}</button>
+            </div>
+        `;
+
+        var close = hdr.querySelector('.gv-close');
         close.addEventListener('click', function() {
             if (el.parentNode) el.parentNode.removeChild(el);
         });
 
-        hdr.appendChild(title);
-        hdr.appendChild(close);
+        // The title and close buttons are already in innerHTML.
         el.appendChild(hdr);
 
         // Body
@@ -177,20 +183,40 @@ backgrounds[21] = function () {
         _makeDraggable(el, hdr);
         _makeResizable(el);
 
-        _container.appendChild(el);
+        _wrapper.appendChild(el);
         _panels.push(el);
     });
 
-    // No Three.js panel meshes — dots only in bgGroup
-    Q4Scene.currentBgAnimate = null;
+    Q4Scene.currentBgAnimate = function(t) {
+        if (!Q4Scene.activeViews || Q4Scene.activeViews.length === 0) return;
+        var cam = Q4Scene.activeViews[0].camera;
+        
+        // Grid plane is at Z = -60. 
+        // Default camera position is Z = 80. Base distance = 140.
+        var curDist = cam.position.z - GRID_Z;
+        var scale = 140 / curDist;
+
+        var centerVec = new THREE.Vector3(0, 0, GRID_Z);
+        centerVec.project(cam);
+
+        var hw = window.innerWidth / 2;
+        var hh = window.innerHeight / 2;
+        
+        var cx = (centerVec.x * 0.5 + 0.5) * window.innerWidth;
+        var cy = (-centerVec.y * 0.5 + 0.5) * window.innerHeight;
+
+        var tx = cx - hw;
+        var ty = cy - hh;
+
+        _wrapper.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + scale + ')';
+    };
 
     // ---------------------------------------------------------------
     // CLEANUP: remove DOM panels when switching away
     // ---------------------------------------------------------------
     bgGroup.userData.cleanup = function() {
-        _panels.forEach(function(el) {
-            if (el.parentNode) el.parentNode.removeChild(el);
-        });
-        _panels = [];
+        if (_wrapper && _wrapper.parentNode) {
+            _wrapper.parentNode.removeChild(_wrapper);
+        }
     };
-};
+});

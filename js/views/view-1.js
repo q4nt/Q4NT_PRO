@@ -1,5 +1,5 @@
 /* View 1 - Default View: Flat Panels mixed with 3D Objects */
-backgrounds[0] = function () {
+ViewFactory.register(0, function () {
     var bgGroup = Q4Scene.bgGroup;
     var panelColors = [
         { bg: 0xffffff, border: 0xe0e0e0 }, { bg: 0xf8f8f8, border: 0xd0d0d0 },
@@ -139,6 +139,7 @@ backgrounds[0] = function () {
                 baseOpacity: 0.92,
                 _isPanel: true,
                 _is3dObj: true,
+                _nativeIs3dObj: true,
                 targetZ: pos.z, targetX: pos.x, targetY: pos.y,
                 rotSpeedX: (Math.random() - 0.5) * 0.008,
                 rotSpeedY: 0.006 + Math.random() * 0.010,
@@ -389,4 +390,4 @@ backgrounds[0] = function () {
             }
         }
     };
-};
+});

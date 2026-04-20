@@ -36,8 +36,56 @@
     <link rel="stylesheet" href="css/components/intel-drawer.css">
     <link rel="stylesheet" href="css/core/themes.css">
     <link rel="stylesheet" href="css/components/components.css">
-    <link rel="stylesheet" href="css/integrations/spotify-pill.css">
+    <!-- View Cycle HUD -->
+    <link rel="stylesheet" href="css/ui/view-cycle-hud.css">
+    <!-- Spotify Pillbox Integration -->
+    <link rel="stylesheet" href="css/integrations/spotify-pillbox.css">
     <link rel="stylesheet" href="css/components/data-bridge.css">
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.addEventListener('dblclick', function(e) {
+            const header = e.target.closest('.q4-widget-header, .gv-panel-header, .float-panel-header');
+            if (header) {
+                const panel = header.closest('.q4-widget-panel, .gv-panel, .float-panel');
+                if (panel) {
+                    panel.classList.toggle('locked-header');
+                }
+            }
+        });
+
+        // Universal Undo/Redo System (max 10 actions)
+        window.ActionHistory = {
+            undoStack: [],
+            redoStack: [],
+            push: function(actionDef) {
+                // actionDef should have { undo: function, redo: function }
+                this.undoStack.push(actionDef);
+                if (this.undoStack.length > 10) this.undoStack.shift();
+                this.redoStack = []; // clear redo stack on new action
+                console.log('[Q4NT ActionHistory] Action pushed. Undo stack size:', this.undoStack.length);
+            },
+            undo: function() {
+                if (this.undoStack.length === 0) return console.log('[Q4NT ActionHistory] Nothing to undo.');
+                const action = this.undoStack.pop();
+                if (action && typeof action.undo === 'function') action.undo();
+                this.redoStack.push(action);
+                console.log('[Q4NT ActionHistory] Undo executed.');
+            },
+            redo: function() {
+                if (this.redoStack.length === 0) return console.log('[Q4NT ActionHistory] Nothing to redo.');
+                const action = this.redoStack.pop();
+                if (action && typeof action.redo === 'function') action.redo();
+                this.undoStack.push(action);
+                console.log('[Q4NT ActionHistory] Redo executed.');
+            }
+        };
+
+        const undoBtn = document.getElementById('global-undo-btn');
+        const redoBtn = document.getElementById('global-redo-btn');
+        if (undoBtn) undoBtn.addEventListener('click', () => window.ActionHistory.undo());
+        if (redoBtn) redoBtn.addEventListener('click', () => window.ActionHistory.redo());
+    });
+    </script>
 </head>
 <body>
 
@@ -68,6 +116,7 @@
                     <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
                 </svg>
             </div>
+
             <!-- Dashboard -->
             <div class="vertical-icon dashboard-icon" title="Dashboard">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -104,6 +153,16 @@
         </div>
         <!-- Bottom Profile -->
         <div class="left-bottom-tools">
+            <!-- Undo / Redo -->
+            <div class="edge-btn" title="Undo / Redo" style="display: flex; gap: 4px; align-items: center; justify-content: center; flex-direction: row; cursor: default; background: transparent; border: none; padding: 0;">
+                <svg id="global-undo-btn" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+                    <polyline points="21 22 5 12 21 2"></polyline>
+                </svg>
+                <div style="width: 1px; height: 24px; background: rgba(0,0,0,0.15);"></div>
+                <svg id="global-redo-btn" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+                    <polyline points="3 2 19 12 3 22"></polyline>
+                </svg>
+            </div>
             <!-- Console / Terminal -->
             <button class="edge-btn left-console-btn" title="Console">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -850,7 +909,7 @@
 
 <!-- Plotly -->
 <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
-<script src="plotly-charts.js"></script>
+<script src="js/charts/plotly-charts.js"></script>
 
 <!-- API Infrastructure (must load before any API clients) -->
 <script src="api/config.js"></script>
@@ -879,27 +938,14 @@
 <!-- Shared View Utilities -->
 <script src="js/views/shared.js"></script>
 
-<!-- View Definitions (1 file per nav button) -->
+<!-- View Registry (ViewFactory must load before any view definitions) -->
+<script src="js/views/view-factory.js"></script>
+
+<!-- Consolidated Simple Views (registers views 2-20 via ViewFactory) -->
+<script src="js/views/views-simple.js"></script>
+
+<!-- Complex Views (retain own files due to substantial unique logic) -->
 <script src="js/views/view-1.js"></script>
-<script src="js/views/view-2.js"></script>
-<script src="js/views/view-3.js"></script>
-<script src="js/views/view-4.js"></script>
-<script src="js/views/view-5.js"></script>
-<script src="js/views/view-6.js"></script>
-<script src="js/views/view-7.js"></script>
-<script src="js/views/view-8.js"></script>
-<script src="js/views/view-9.js"></script>
-<script src="js/views/view-10.js"></script>
-<script src="js/views/view-11.js"></script>
-<script src="js/views/view-12.js"></script>
-<script src="js/views/view-13.js"></script>
-<script src="js/views/view-14.js"></script>
-<script src="js/views/view-15.js"></script>
-<script src="js/views/view-16.js"></script>
-<script src="js/views/view-17.js"></script>
-<script src="js/views/view-18.js"></script>
-<script src="js/views/view-19.js"></script>
-<script src="js/views/view-20.js"></script>
 <script src="js/views/view-21.js"></script>
 <script src="js/views/view-22.js"></script>
 
@@ -909,6 +955,7 @@
 <script src="js/tabs/tab-dashboard.js"></script>
 
 <!-- Data Bridge (tab-to-API orchestrator, loads after dashboard panels exist) -->
+<script src="js/core/event-bus.js"></script>
 <script src="js/core/data-bridge.js"></script>
 
 <!-- UI Modules -->

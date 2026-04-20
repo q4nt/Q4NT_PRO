@@ -538,12 +538,10 @@ function renderRelevantBlockchain() {
         // Use the backend proxy for blockchain data
         var url = (typeof IntegrationRuntime !== 'undefined' ? IntegrationRuntime.toApiUrl('/api/blockchain/chart/') : '/api/blockchain/chart/') + chartName + '?timespan=1year';
         
-        // Ensure authentication if we're using fetch directly
-        var headers = {};
-        var apiKey = localStorage.getItem('q4nt_api_key');
-        if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
+        // Authentication is handled server-side by the backend proxy.
+        // No client-side credentials are sent.
 
-        fetch(url, { headers: headers })
+        fetch(url)
             .then(function(res) {
                 if (!res.ok) throw new Error('API Error ' + res.status);
                 return res.json();

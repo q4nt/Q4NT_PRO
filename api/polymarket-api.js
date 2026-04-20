@@ -11,10 +11,7 @@ var PolymarketAPI = (function () {
     var gammaBase = 'https://gamma-api.polymarket.com';
     // Route Gamma API calls through the typed backend proxy (/api/proxy/polymarket/)
     var proxyBase = typeof Q4Config !== 'undefined' ? (Q4Config.API_BASE + '/api/proxy/polymarket') : 'http://127.0.0.1:5052/api/proxy/polymarket';
-    var apiKey = '';
     var _cache = ApiCache.create(60 * 1000); // 1 minute
-
-    function setApiKey(key) { apiKey = key; }
 
     // ---- Internal helpers ----
 
@@ -35,7 +32,6 @@ var PolymarketAPI = (function () {
             url = ApiCache.buildUrl(base, path, params);
         }
         var headers = { 'Content-Type': 'application/json' };
-        if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
         return ApiCache.fetchCachedWithHeaders(url, _cache, headers, 'Polymarket API');
     }
 
@@ -152,7 +148,6 @@ var PolymarketAPI = (function () {
     }
 
     return {
-        setApiKey: setApiKey,
         // Gamma: Events & Markets
         getEvents: getEvents, getEvent: getEvent,
         getMarkets: getMarkets, getMarket: getMarket,

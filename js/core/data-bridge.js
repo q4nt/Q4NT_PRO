@@ -1,10 +1,21 @@
 /* ==========================================================================
-   Q4NT PRO - Data Bridge
-   Orchestrates lazy data fetching and rendering for bottom-panel tabs.
-   Maps each tab to its relevant API sources, handles loading states,
-   and manages periodic refresh cycles.
+   Q4NT PRO - Data Bridge (Refactored)
+   Orchestrates lazy data fetching for bottom-panel tabs.
+   
+   ARCHITECTURE (Phase 3):
+   - Data fetching functions emit events via Q4Events instead of directly
+     manipulating the DOM.
+   - UI rendering is handled by subscriber functions registered below.
+   - This decoupling allows data sources to be tested independently
+     and enables multiple UI consumers for the same data stream.
 
-   Depends on: api/config.js, api/api-cache.js, api/api-registry.js
+   Event Contract:
+     Q4Events.emit('data:<tab>:loading', { paneId, widgetIndex })
+     Q4Events.emit('data:<tab>:loaded',  { paneId, widgetIndex, data })
+     Q4Events.emit('data:<tab>:error',   { paneId, widgetIndex, message })
+
+   Depends on: api/config.js, api/api-cache.js, api/api-registry.js,
+               js/core/event-bus.js
    ========================================================================== */
 
 var DataBridge = (function () {
@@ -19,7 +30,7 @@ var DataBridge = (function () {
     var _activeTab = null;
 
     // ---------------------------------------------------------------------------
-    // Skeleton / Loading State
+    // UI Primitives (Skeleton / Loading / Error / Empty)
     // ---------------------------------------------------------------------------
 
     function showSkeleton(container, count) {
@@ -56,14 +67,9 @@ var DataBridge = (function () {
     }
 
     // ---------------------------------------------------------------------------
-    // Widget Card Builder
+    // Widget Card Builders
     // ---------------------------------------------------------------------------
 
-    /**
-     * Create a high-fidelity data card for a widget panel.
-     * @param {Object} opts - { title, value, subtitle, change, changeDir, icon, color }
-     * @returns {HTMLElement}
-     */
     function createDataCard(opts) {
         var card = document.createElement('div');
         card.className = 'db-data-card';
@@ -86,9 +92,6 @@ var DataBridge = (function () {
         return card;
     }
 
-    /**
-     * Create a score card for sports data.
-     */
     function createScoreCard(game) {
         var card = document.createElement('div');
         card.className = 'db-score-card';
@@ -111,9 +114,6 @@ var DataBridge = (function () {
         return card;
     }
 
-    /**
-     * Create a prediction market card.
-     */
     function createPredictionCard(market) {
         var card = document.createElement('div');
         card.className = 'db-prediction-card';
@@ -135,17 +135,10 @@ var DataBridge = (function () {
     }
 
     // ---------------------------------------------------------------------------
-    // Tab Data Loaders
+    // Data Fetchers (emit events, do NOT touch the DOM)
     // ---------------------------------------------------------------------------
 
-    /**
-     * Load data for the Home tab - market overview cards.
-     */
-    function loadHomeTab(pane) {
-        var content = _getWidgetContents(pane);
-        if (!content.length) return;
-
-        // Populate first 4 widgets with market index cards
+    function fetchHomeData(tabId) {
         var indices = [
             { title: 'S&P 500', symbol: 'SPY', color: '#1B2A4A' },
             { title: 'NASDAQ', symbol: 'QQQ', color: '#2E7D6F' },
@@ -155,331 +148,337 @@ var DataBridge = (function () {
 
         var polygon = ApiRegistry.get('polygon');
         if (!polygon) {
-            // No Polygon API available - show placeholder cards
             indices.forEach(function (idx, i) {
-                if (content[i]) {
-                    content[i].appendChild(createDataCard({
-                        title: idx.title,
-                        value: 'Connect API',
-                        subtitle: idx.symbol,
-                        color: idx.color,
-                        badge: 'OFFLINE'
-                    }));
-                }
+                Q4Events.emit('data:widget:loaded', {
+                    tabId: tabId, widgetIndex: i,
+                    card: { title: idx.title, value: 'Connect API', subtitle: idx.symbol, color: idx.color, badge: 'OFFLINE' }
+                });
             });
             return;
         }
 
         indices.forEach(function (idx, i) {
-            if (!content[i]) return;
-            showSkeleton(content[i], 1);
+            Q4Events.emit('data:widget:loading', { tabId: tabId, widgetIndex: i });
 
             polygon.prevClose(idx.symbol)
                 .then(function (data) {
-                    content[i].innerHTML = '';
                     if (data && data.results && data.results.length > 0) {
                         var r = data.results[0];
                         var change = r.c && r.o ? ((r.c - r.o) / r.o * 100).toFixed(2) : 0;
-                        content[i].appendChild(createDataCard({
-                            title: idx.title,
-                            value: '$' + _formatPrice(r.c),
-                            change: change + '%',
-                            changeDir: change >= 0 ? 'up' : 'down',
-                            subtitle: 'Vol: ' + _formatNumber(r.v),
-                            color: idx.color,
-                            badge: 'LIVE'
-                        }));
+                        Q4Events.emit('data:widget:loaded', {
+                            tabId: tabId, widgetIndex: i,
+                            card: {
+                                title: idx.title, value: '$' + _formatPrice(r.c),
+                                change: change + '%', changeDir: change >= 0 ? 'up' : 'down',
+                                subtitle: 'Vol: ' + _formatNumber(r.v), color: idx.color, badge: 'LIVE'
+                            }
+                        });
                     } else {
-                        content[i].appendChild(createDataCard({
-                            title: idx.title, value: '--', subtitle: 'No data', color: idx.color
-                        }));
+                        Q4Events.emit('data:widget:loaded', {
+                            tabId: tabId, widgetIndex: i,
+                            card: { title: idx.title, value: '--', subtitle: 'No data', color: idx.color }
+                        });
                     }
                 })
                 .catch(function () {
-                    content[i].innerHTML = '';
-                    content[i].appendChild(createDataCard({
-                        title: idx.title, value: '--', subtitle: 'API Error', color: idx.color
-                    }));
+                    Q4Events.emit('data:widget:error', {
+                        tabId: tabId, widgetIndex: i,
+                        card: { title: idx.title, value: '--', subtitle: 'API Error', color: idx.color }
+                    });
                 });
         });
 
-        // Widgets 5-8: Alpaca account info
+        // Alpaca portfolio (widget 4)
         var alpaca = ApiRegistry.get('alpaca');
-        if (alpaca && content[4]) {
-            showSkeleton(content[4], 1);
+        if (alpaca) {
+            Q4Events.emit('data:widget:loading', { tabId: tabId, widgetIndex: 4 });
             alpaca.getAccount()
                 .then(function (acct) {
-                    content[4].innerHTML = '';
                     if (acct && acct.equity) {
                         var dayPL = acct.equity - (acct.last_equity || acct.equity);
-                        content[4].appendChild(createDataCard({
-                            title: 'Portfolio Value',
-                            value: '$' + _formatPrice(parseFloat(acct.equity)),
-                            change: '$' + _formatPrice(Math.abs(dayPL)),
-                            changeDir: dayPL >= 0 ? 'up' : 'down',
-                            subtitle: 'Buying Power: $' + _formatPrice(parseFloat(acct.buying_power || 0)),
-                            color: '#007AFF',
-                            badge: 'ALPACA'
-                        }));
+                        Q4Events.emit('data:widget:loaded', {
+                            tabId: tabId, widgetIndex: 4,
+                            card: {
+                                title: 'Portfolio Value',
+                                value: '$' + _formatPrice(parseFloat(acct.equity)),
+                                change: '$' + _formatPrice(Math.abs(dayPL)),
+                                changeDir: dayPL >= 0 ? 'up' : 'down',
+                                subtitle: 'Buying Power: $' + _formatPrice(parseFloat(acct.buying_power || 0)),
+                                color: '#007AFF', badge: 'ALPACA'
+                            }
+                        });
                     }
                 })
                 .catch(function () {
-                    content[4].innerHTML = '';
-                    content[4].appendChild(createDataCard({
-                        title: 'Portfolio', value: 'Not Connected', subtitle: 'Connect Alpaca', color: '#007AFF'
-                    }));
+                    Q4Events.emit('data:widget:error', {
+                        tabId: tabId, widgetIndex: 4,
+                        card: { title: 'Portfolio', value: 'Not Connected', subtitle: 'Connect Alpaca', color: '#007AFF' }
+                    });
                 });
         }
     }
 
-    /**
-     * Load data for the US tab - US markets + sports.
-     */
-    function loadUSTab(pane) {
-        var content = _getWidgetContents(pane);
-        if (!content.length) return;
-
-        // NBA Scores
+    function fetchUSData(tabId) {
         var nba = ApiRegistry.get('nba');
-        if (nba && content[0]) {
-            showSkeleton(content[0], 1);
+        if (nba) {
+            Q4Events.emit('data:widget:loading', { tabId: tabId, widgetIndex: 0 });
             nba.getTodaysScoreboard()
                 .then(function (scoreboard) {
-                    content[0].innerHTML = '';
                     if (!scoreboard) {
-                        showEmpty(content[0], 'No NBA games today');
+                        Q4Events.emit('data:widget:empty', { tabId: tabId, widgetIndex: 0, message: 'No NBA games today' });
                         return;
                     }
                     var games = nba.parseScoreboard(scoreboard);
                     if (games.length === 0) {
-                        showEmpty(content[0], 'No NBA games today');
+                        Q4Events.emit('data:widget:empty', { tabId: tabId, widgetIndex: 0, message: 'No NBA games today' });
                         return;
                     }
-                    var frag = document.createDocumentFragment();
-                    games.slice(0, 4).forEach(function (g) {
-                        frag.appendChild(createScoreCard(g));
-                    });
-                    content[0].appendChild(frag);
+                    Q4Events.emit('data:scores:loaded', { tabId: tabId, widgetIndex: 0, games: games.slice(0, 4) });
                 })
                 .catch(function () {
-                    showError(content[0], 'NBA data unavailable');
+                    Q4Events.emit('data:widget:error', { tabId: tabId, widgetIndex: 0, message: 'NBA data unavailable' });
                 });
         }
 
-        // DraftKings upcoming
         var dk = ApiRegistry.get('draftkings');
-        if (dk && content[1]) {
-            showSkeleton(content[1], 1);
+        if (dk) {
+            Q4Events.emit('data:widget:loading', { tabId: tabId, widgetIndex: 1 });
             dk.getContests('NBA')
                 .then(function (data) {
-                    content[1].innerHTML = '';
                     if (data && data.Contests && data.Contests.length > 0) {
-                        var frag = document.createDocumentFragment();
-                        data.Contests.slice(0, 3).forEach(function (c) {
-                            frag.appendChild(createDataCard({
+                        var cards = data.Contests.slice(0, 3).map(function (c) {
+                            return {
                                 title: c.n || 'Contest',
                                 value: '$' + _formatNumber(c.po || 0),
                                 subtitle: (c.ec || 0) + ' / ' + (c.m || 0) + ' entries',
-                                color: '#2E7D6F',
-                                badge: 'DK'
-                            }));
+                                color: '#2E7D6F', badge: 'DK'
+                            };
                         });
-                        content[1].appendChild(frag);
+                        Q4Events.emit('data:cards:loaded', { tabId: tabId, widgetIndex: 1, cards: cards });
                     } else {
-                        showEmpty(content[1], 'No active contests');
+                        Q4Events.emit('data:widget:empty', { tabId: tabId, widgetIndex: 1, message: 'No active contests' });
                     }
                 })
                 .catch(function () {
-                    showError(content[1], 'DraftKings unavailable');
+                    Q4Events.emit('data:widget:error', { tabId: tabId, widgetIndex: 1, message: 'DraftKings unavailable' });
                 });
         }
     }
 
-    /**
-     * Load data for the Global tab.
-     */
-    function loadGlobalTab(pane) {
-        var content = _getWidgetContents(pane);
-        if (!content.length) return;
-
-        // World Bank GDP data
+    function fetchGlobalData(tabId) {
         var wb = ApiRegistry.get('worldbank');
-        if (wb && content[0]) {
-            showSkeleton(content[0], 1);
+        if (wb) {
+            Q4Events.emit('data:widget:loading', { tabId: tabId, widgetIndex: 0 });
             wb.gdp('USA', { mrv: 1 })
                 .then(function (data) {
-                    content[0].innerHTML = '';
                     if (data && data[1] && data[1].length > 0) {
                         var entry = data[1][0];
-                        content[0].appendChild(createDataCard({
-                            title: 'US GDP',
-                            value: '$' + _formatNumber(entry.value / 1e12, 2) + 'T',
-                            subtitle: 'Year: ' + entry.date,
-                            color: '#1B2A4A',
-                            badge: 'WORLD BANK'
-                        }));
+                        Q4Events.emit('data:widget:loaded', {
+                            tabId: tabId, widgetIndex: 0,
+                            card: {
+                                title: 'US GDP', value: '$' + _formatNumber(entry.value / 1e12, 2) + 'T',
+                                subtitle: 'Year: ' + entry.date, color: '#1B2A4A', badge: 'WORLD BANK'
+                            }
+                        });
                     }
                 })
                 .catch(function () {
-                    showError(content[0], 'World Bank API unavailable');
+                    Q4Events.emit('data:widget:error', { tabId: tabId, widgetIndex: 0, message: 'World Bank API unavailable' });
                 });
         }
 
-        // ADS-B military flights
         var adsb = ApiRegistry.get('adsb');
-        if (adsb && content[1]) {
-            showSkeleton(content[1], 1);
+        if (adsb) {
+            Q4Events.emit('data:widget:loading', { tabId: tabId, widgetIndex: 1 });
             adsb.military()
                 .then(function (data) {
-                    content[1].innerHTML = '';
                     var count = data && data.ac ? data.ac.length : 0;
-                    content[1].appendChild(createDataCard({
-                        title: 'Military Aircraft',
-                        value: count + ' tracked',
-                        subtitle: 'Live ADS-B data',
-                        color: '#C4553A',
-                        badge: 'LIVE'
-                    }));
+                    Q4Events.emit('data:widget:loaded', {
+                        tabId: tabId, widgetIndex: 1,
+                        card: { title: 'Military Aircraft', value: count + ' tracked', subtitle: 'Live ADS-B data', color: '#C4553A', badge: 'LIVE' }
+                    });
                 })
                 .catch(function () {
-                    showError(content[1], 'ADS-B unavailable');
+                    Q4Events.emit('data:widget:error', { tabId: tabId, widgetIndex: 1, message: 'ADS-B unavailable' });
                 });
         }
     }
 
-    /**
-     * Load data for the Predictions tab.
-     */
-    function loadPredictionsTab(pane) {
-        var content = _getWidgetContents(pane);
-        if (!content.length) return;
-
+    function fetchPredictionsData(tabId) {
         var pm = ApiRegistry.get('polymarket');
         if (!pm) {
-            if (content[0]) showEmpty(content[0], 'Polymarket API not loaded');
+            Q4Events.emit('data:widget:empty', { tabId: tabId, widgetIndex: 0, message: 'Polymarket API not loaded' });
             return;
         }
 
-        // Fetch top prediction markets
-        content.slice(0, 6).forEach(function (el) { showSkeleton(el, 1); });
+        for (var k = 0; k < 6; k++) {
+            Q4Events.emit('data:widget:loading', { tabId: tabId, widgetIndex: k });
+        }
 
         pm.getEvents({ limit: 6, order: 'volume', active: true })
             .then(function (events) {
                 var list = Array.isArray(events) ? events : [];
                 list.slice(0, 6).forEach(function (evt, i) {
-                    if (!content[i]) return;
-                    content[i].innerHTML = '';
-
                     var market = evt.markets && evt.markets[0] ? evt.markets[0] : {};
-                    content[i].appendChild(createPredictionCard({
-                        question: evt.title || evt.question || 'Prediction Market',
-                        probability: market.outcomePrices
-                            ? parseFloat(JSON.parse(market.outcomePrices)[0])
-                            : (market.bestAsk || 0.5),
-                        volume: evt.volume || market.volume || 0
-                    }));
+                    Q4Events.emit('data:prediction:loaded', {
+                        tabId: tabId, widgetIndex: i,
+                        prediction: {
+                            question: evt.title || evt.question || 'Prediction Market',
+                            probability: market.outcomePrices
+                                ? parseFloat(JSON.parse(market.outcomePrices)[0])
+                                : (market.bestAsk || 0.5),
+                            volume: evt.volume || market.volume || 0
+                        }
+                    });
                 });
             })
             .catch(function () {
-                if (content[0]) showError(content[0], 'Polymarket unavailable');
+                Q4Events.emit('data:widget:error', { tabId: tabId, widgetIndex: 0, message: 'Polymarket unavailable' });
             });
     }
 
-    /**
-     * Load data for the Integrations tab - connection status for all APIs.
-     */
-    function loadIntegrationsTab(pane) {
-        var content = _getWidgetContents(pane);
-        if (!content.length) return;
-
+    function fetchIntegrationsData(tabId) {
         var registered = ApiRegistry.list();
         registered.forEach(function (name, i) {
-            if (!content[i]) return;
-            content[i].innerHTML = '';
-            content[i].appendChild(createDataCard({
-                title: name.charAt(0).toUpperCase() + name.slice(1),
-                value: 'Connected',
-                subtitle: 'via ApiRegistry',
-                color: '#34C759',
-                badge: 'ACTIVE'
-            }));
+            Q4Events.emit('data:widget:loaded', {
+                tabId: tabId, widgetIndex: i,
+                card: {
+                    title: name.charAt(0).toUpperCase() + name.slice(1),
+                    value: 'Connected', subtitle: 'via ApiRegistry', color: '#34C759', badge: 'ACTIVE'
+                }
+            });
         });
 
-        // Fill remaining with "available to connect" placeholders
         var available = ['zillow', 'cloudflare', 'duckduckgo', 'openai'];
-        for (var j = registered.length; j < content.length && j - registered.length < available.length; j++) {
-            var apiName = available[j - registered.length];
+        for (var j = 0; j < available.length; j++) {
+            var apiName = available[j];
             if (registered.indexOf(apiName) === -1) {
-                content[j].innerHTML = '';
-                content[j].appendChild(createDataCard({
-                    title: apiName.charAt(0).toUpperCase() + apiName.slice(1),
-                    value: 'Available',
-                    subtitle: 'Click to configure',
-                    color: '#778DA9',
-                    badge: 'READY'
-                }));
+                Q4Events.emit('data:widget:loaded', {
+                    tabId: tabId, widgetIndex: registered.length + j,
+                    card: {
+                        title: apiName.charAt(0).toUpperCase() + apiName.slice(1),
+                        value: 'Available', subtitle: 'Click to configure', color: '#778DA9', badge: 'READY'
+                    }
+                });
             }
         }
     }
 
     // ---------------------------------------------------------------------------
+    // UI Renderers (subscribe to events, manage DOM)
+    // ---------------------------------------------------------------------------
+
+    function _getWidgetContent(tabId, widgetIndex) {
+        var pane = document.querySelector('.btp-pane[data-pane="' + tabId + '"]');
+        if (!pane) return null;
+        var widgets = Array.prototype.slice.call(pane.querySelectorAll('.q4-widget-content'));
+        return widgets[widgetIndex] || null;
+    }
+
+    // Subscribe: loading state
+    Q4Events.on('data:widget:loading', function (payload) {
+        var el = _getWidgetContent(payload.tabId, payload.widgetIndex);
+        if (el) showSkeleton(el, 1);
+    });
+
+    // Subscribe: single data card
+    Q4Events.on('data:widget:loaded', function (payload) {
+        var el = _getWidgetContent(payload.tabId, payload.widgetIndex);
+        if (!el) return;
+        el.innerHTML = '';
+        el.appendChild(createDataCard(payload.card));
+    });
+
+    // Subscribe: error state
+    Q4Events.on('data:widget:error', function (payload) {
+        var el = _getWidgetContent(payload.tabId, payload.widgetIndex);
+        if (!el) return;
+        if (payload.card) {
+            el.innerHTML = '';
+            el.appendChild(createDataCard(payload.card));
+        } else {
+            showError(el, payload.message);
+        }
+    });
+
+    // Subscribe: empty state
+    Q4Events.on('data:widget:empty', function (payload) {
+        var el = _getWidgetContent(payload.tabId, payload.widgetIndex);
+        if (el) showEmpty(el, payload.message);
+    });
+
+    // Subscribe: score cards (sports)
+    Q4Events.on('data:scores:loaded', function (payload) {
+        var el = _getWidgetContent(payload.tabId, payload.widgetIndex);
+        if (!el) return;
+        el.innerHTML = '';
+        var frag = document.createDocumentFragment();
+        payload.games.forEach(function (g) { frag.appendChild(createScoreCard(g)); });
+        el.appendChild(frag);
+    });
+
+    // Subscribe: multiple data cards
+    Q4Events.on('data:cards:loaded', function (payload) {
+        var el = _getWidgetContent(payload.tabId, payload.widgetIndex);
+        if (!el) return;
+        el.innerHTML = '';
+        var frag = document.createDocumentFragment();
+        payload.cards.forEach(function (c) { frag.appendChild(createDataCard(c)); });
+        el.appendChild(frag);
+    });
+
+    // Subscribe: prediction cards
+    Q4Events.on('data:prediction:loaded', function (payload) {
+        var el = _getWidgetContent(payload.tabId, payload.widgetIndex);
+        if (!el) return;
+        el.innerHTML = '';
+        el.appendChild(createPredictionCard(payload.prediction));
+    });
+
+    // ---------------------------------------------------------------------------
     // Tab Router
     // ---------------------------------------------------------------------------
 
-    var TAB_LOADERS = {
-        'row2-home':         loadHomeTab,
-        'row2-us':           loadUSTab,
-        'row2-global':       loadGlobalTab,
-        'row2-predictions':  loadPredictionsTab,
-        'row2-integrations': loadIntegrationsTab,
+    var TAB_FETCHERS = {
+        'row2-home':         fetchHomeData,
+        'row2-us':           fetchUSData,
+        'row2-global':       fetchGlobalData,
+        'row2-predictions':  fetchPredictionsData,
+        'row2-integrations': fetchIntegrationsData,
     };
 
-    /**
-     * Called when a tab becomes active. Loads data if not already initialized.
-     * @param {string} tabId - The data-pane value (e.g., 'row2-home')
-     */
     function activateTab(tabId) {
         _activeTab = tabId;
         var pane = document.querySelector('.btp-pane[data-pane="' + tabId + '"]');
         if (!pane) return;
 
-        var loader = TAB_LOADERS[tabId];
-        if (!loader) return;
+        var fetcher = TAB_FETCHERS[tabId];
+        if (!fetcher) return;
 
-        // Only load once per session (unless refresh is triggered)
         if (!_initialized[tabId]) {
             _initialized[tabId] = true;
-            loader(pane);
+            fetcher(tabId);
 
             // Set up auto-refresh if enabled
             if (Q4Config.FEATURES.AUTO_REFRESH && Q4Config.FEATURES.REFRESH_INTERVAL) {
                 _refreshTimers[tabId] = setInterval(function () {
                     if (_activeTab === tabId) {
-                        loader(pane);
+                        fetcher(tabId);
                     }
                 }, Q4Config.FEATURES.REFRESH_INTERVAL);
             }
         }
     }
 
-    /**
-     * Force refresh data for the currently active tab.
-     */
     function refreshActiveTab() {
-        if (_activeTab && TAB_LOADERS[_activeTab]) {
-            var pane = document.querySelector('.btp-pane[data-pane="' + _activeTab + '"]');
-            if (pane) TAB_LOADERS[_activeTab](pane);
+        if (_activeTab && TAB_FETCHERS[_activeTab]) {
+            TAB_FETCHERS[_activeTab](_activeTab);
         }
     }
 
     // ---------------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------------
-
-    function _getWidgetContents(pane) {
-        if (!pane) return [];
-        return Array.prototype.slice.call(pane.querySelectorAll('.q4-widget-content'));
-    }
 
     function _formatPrice(num) {
         if (num === undefined || num === null || isNaN(num)) return '--';
@@ -497,19 +496,32 @@ var DataBridge = (function () {
     }
 
     // ---------------------------------------------------------------------------
-    // Init: Listen for tab activations
+    // Init
     // ---------------------------------------------------------------------------
 
+    function _configureProxies() {
+        var base = Q4Config.API_BASE;
+        if (!base) return;
+
+        fetch(base + '/api/health', { method: 'GET' })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                console.log('[DataBridge] Backend connected:', data.status || 'ok');
+                Q4Events.emit('system:backend:connected', data);
+            })
+            .catch(function () {
+                console.warn('[DataBridge] Backend not reachable at', base, '- proxy-dependent APIs will fail gracefully');
+                Q4Events.emit('system:backend:disconnected', { url: base });
+            });
+    }
+
     function init() {
-        // Configure APIs that need proxy mode
         _configureProxies();
 
-        // Hook into existing tab click events
         document.querySelectorAll('.btp-tab').forEach(function (tab) {
             tab.addEventListener('click', function () {
                 var target = this.getAttribute('data-tab');
                 if (target) {
-                    // Use requestIdleCallback for non-blocking data load
                     if (window.requestIdleCallback) {
                         requestIdleCallback(function () { activateTab(target); }, { timeout: 500 });
                     } else {
@@ -519,46 +531,16 @@ var DataBridge = (function () {
             });
         });
 
-        // Auto-load the default active tab (row2-home)
         setTimeout(function () {
             activateTab('row2-home');
         }, 1000);
 
-        console.log('[DataBridge] Initialized. Registered APIs:', ApiRegistry.list().join(', '));
+        console.log('[DataBridge] Initialized with event-driven architecture. Registered APIs:', ApiRegistry.list().join(', '));
     }
 
-    /**
-     * Auto-configure APIs that need backend proxy routing.
-     * Switches Polygon from direct API access to proxied mode
-     * so the API key stays server-side.
-     */
-    function _configureProxies() {
-        var base = Q4Config.API_BASE;
-        if (!base) return;
-
-        // Polygon: Switch to proxy mode if Q4Config has a valid API_BASE
-        var polygon = ApiRegistry.get('polygon');
-        if (polygon && polygon.setProxyMode) {
-            polygon.setProxyMode(base + '/api/polygon');
-            console.log('[DataBridge] Polygon API set to proxy mode:', base + '/api/polygon');
-        }
-
-        // Probe backend health (non-blocking)
-        fetch(base + '/api/health', { method: 'GET' })
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                console.log('[DataBridge] Backend connected:', data.status || 'ok');
-            })
-            .catch(function () {
-                console.warn('[DataBridge] Backend not reachable at', base, '- proxy-dependent APIs will fail gracefully');
-            });
-    }
-
-    // Boot
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
-        // If DOM is already ready, delay slightly to let dashboard panels render first
         setTimeout(init, 500);
     }
 
