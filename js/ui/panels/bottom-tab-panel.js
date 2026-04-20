@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.btp-tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     const target = tab.getAttribute('data-tab');
+                    const wasActive = tab.classList.contains('active');
+                    
                     document.querySelectorAll('.btp-tab').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.btp-pane').forEach(p => p.classList.remove('active'));
                     tab.classList.add('active');
@@ -25,6 +27,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             drawer.classList.toggle('visible');
                         } else {
                             drawer.classList.remove('visible');
+                        }
+                    }
+
+                    // Handle Home sub-tabs collapse logic
+                    const homeSubTabs = ['row2-home', 'row2-relevant', 'row2-trending', 'row2-recent', 'row2-images', 'row2-other'];
+                    const homeSubContainer = document.getElementById('home-sub-tabs');
+                    if (homeSubContainer) {
+                        if (target === 'row2-home' && wasActive) {
+                            // Toggle sub-tabs if Home is clicked while already active
+                            homeSubContainer.style.display = homeSubContainer.style.display === 'none' ? 'flex' : 'none';
+                        } else if (target && target.startsWith('row2-')) {
+                            if (homeSubTabs.includes(target)) {
+                                homeSubContainer.style.display = 'flex';
+                            } else {
+                                homeSubContainer.style.display = 'none';
+                            }
                         }
                     }
                 });

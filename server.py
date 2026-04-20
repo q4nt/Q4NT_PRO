@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from spotify_router import router as spotify_router
+from api_proxy_routes import all_proxy_routers
 
 # Load environment variables early
 load_dotenv()
@@ -43,6 +44,10 @@ app.add_middleware(
 )
 
 app.include_router(spotify_router)
+
+# Mount all API proxy routers (Polygon, Alpaca, NBA, NCAA, Polymarket)
+for proxy_router in all_proxy_routers:
+    app.include_router(proxy_router)
 
 # ---------------------------------------------------------------------------
 # Command Logger

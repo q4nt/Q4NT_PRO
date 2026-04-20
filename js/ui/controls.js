@@ -112,14 +112,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // === 3D Cube Button (Right Panel) ===
+        // === 3D Cube Button (Right Panel) — toggles bottom-right view cycle HUD ===
         const rightCubeBtn = document.querySelector('.right-cube-btn');
         if (rightCubeBtn) {
+            // HUD is visible on load — start active (blue)
+            rightCubeBtn.classList.add('active');
             rightCubeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (typeof Q4Scene !== 'undefined' && Q4Scene.bgGroup) {
-                    Q4Scene.bgGroup.visible = !Q4Scene.bgGroup.visible;
-                }
+                const cubeWrapper = document.getElementById('cubeWrapper');
+                const cubeLabel   = document.getElementById('cubeDepthLabel');
+                const isHidden = cubeWrapper && cubeWrapper.style.display === 'none';
+                if (cubeWrapper) cubeWrapper.style.display = isHidden ? '' : 'none';
+                if (cubeLabel)   cubeLabel.style.display   = isHidden ? '' : 'none';
+                rightCubeBtn.classList.toggle('active', isHidden);
             });
         }
 
@@ -247,6 +252,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // === Left Console/Terminal Button — toggles command panel visibility ===
+        const leftConsoleBtn = document.querySelector('.left-console-btn');
+        if (leftConsoleBtn) {
+            // Command panel is visible on load — start active (blue)
+            leftConsoleBtn.classList.add('active');
+            leftConsoleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const cmdPanel = document.querySelector('.panel-bottom');
+                if (!cmdPanel) return;
+                const isHidden = cmdPanel.style.display === 'none' || cmdPanel.dataset.hidden === 'true';
+                if (isHidden) {
+                    cmdPanel.style.display = '';
+                    cmdPanel.dataset.hidden = 'false';
+                    leftConsoleBtn.classList.add('active');
+                } else {
+                    cmdPanel.style.display = 'none';
+                    cmdPanel.dataset.hidden = 'true';
+                    leftConsoleBtn.classList.remove('active');
+                }
+            });
+        }
+
         // === Layout Toggle Button (4-state toolbar cycle) ===
         const layoutBtn = document.querySelector('.layout-btn');
         if (layoutBtn) {
@@ -305,6 +332,79 @@ document.addEventListener('DOMContentLoaded', () => {
             layoutBtn.addEventListener('mouseleave', () => {
                 clearTimeout(layoutHoldTimer);
             });
+        }
+        
+        // === Dock Position Toggle (toolbar-right position cycle) ===
+        const dockPosBtn = document.getElementById('dock-pos-btn');
+        if (dockPosBtn) {
+            // States: 'right' (default) -> 'left' -> 'top'
+            const DOCK_STATES = ['right', 'left', 'top'];
+            let dockStateIdx = 0;
+
+            // SVG inner content for each position state
+            // Each shows the toolbar strip highlighted on that edge
+            const DOCK_ICONS = {
+                right: `<rect x="2" y="2" width="16" height="16" rx="2"/>
+                        <line x1="14" y1="2" x2="14" y2="18"/>
+                        <line x1="14" y1="6" x2="18" y2="6"/>
+                        <line x1="14" y1="10" x2="18" y2="10"/>
+                        <line x1="14" y1="14" x2="18" y2="14"/>`,
+                left:  `<rect x="2" y="2" width="16" height="16" rx="2"/>
+                        <line x1="6" y1="2" x2="6" y2="18"/>
+                        <line x1="2" y1="6" x2="6" y2="6"/>
+                        <line x1="2" y1="10" x2="6" y2="10"/>
+                        <line x1="2" y1="14" x2="6" y2="14"/>`,
+                top:   `<rect x="2" y="2" width="16" height="16" rx="2"/>
+                        <line x1="2" y1="6" x2="18" y2="6"/>
+                        <line x1="6" y1="2" x2="6" y2="6"/>
+                        <line x1="10" y1="2" x2="10" y2="6"/>
+                        <line x1="14" y1="2" x2="14" y2="6"/>`
+            };
+
+            const DOCK_TITLES = {
+                right: 'Move Toolbar: Currently Right — click for Left',
+                left:  'Move Toolbar: Currently Left — click for Top',
+                top:   'Move Toolbar: Currently Top — click for Right'
+            };
+
+            const toolbar = document.querySelector('.toolbar-right');
+            const dockIcon = document.getElementById('dock-pos-icon');
+
+            const applyDockState = (state) => {
+                if (!toolbar || !dockIcon) return;
+                const wasActive = toolbar.classList.contains('locked') || toolbar.classList.contains('visible');
+
+                // Remove all dock classes
+                toolbar.classList.remove('docked-left', 'docked-top');
+
+                // Reset position overrides applied by previous docked-left/top
+                toolbar.style.left  = '';
+                toolbar.style.right = '';
+                toolbar.style.top   = '';
+                toolbar.style.width = '';
+                toolbar.style.height = '';
+
+                if (state === 'left')  toolbar.classList.add('docked-left');
+                if (state === 'top')   toolbar.classList.add('docked-top');
+
+                // Re-apply visible state so toolbar stays open if it was open
+                if (wasActive) {
+                    toolbar.classList.add('locked');
+                }
+
+                // Update icon SVG
+                dockIcon.innerHTML = DOCK_ICONS[state];
+                dockPosBtn.title = DOCK_TITLES[state];
+            };
+
+            dockPosBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dockStateIdx = (dockStateIdx + 1) % DOCK_STATES.length;
+                applyDockState(DOCK_STATES[dockStateIdx]);
+            });
+
+            // Init icon for default 'right' state
+            applyDockState('right');
         }
         
         console.log('[Q4NT Controls] Initialization successful.');

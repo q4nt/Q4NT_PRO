@@ -387,6 +387,87 @@ body, html {
     transform: translate(-50px, -50%);
 }
 
+/* Dock position: left side */
+.toolbar-right.docked-left {
+    top: 50%;
+    left: 0;
+    right: auto;
+    transform: translate(-100%, -50%);
+    border-radius: 0 16px 16px 0;
+    transition: transform 0.4s var(--ease-out-back), left 0s, right 0s, border-radius 0.3s ease;
+}
+.toolbar-right.docked-left.locked,
+.toolbar-right.docked-left.visible {
+    transform: translate(50px, -50%);
+}
+.toolbar-right.docked-left::before {
+    top: -32px;
+    left: 0;
+    right: auto;
+    background: radial-gradient(circle at top right, transparent 32px, var(--current-bg) 32.5px);
+}
+.toolbar-right.docked-left::after {
+    bottom: -32px;
+    left: 0;
+    right: auto;
+    background: radial-gradient(circle at bottom right, transparent 32px, var(--current-bg) 32.5px);
+}
+
+/* Dock position: top (horizontal) */
+.toolbar-right.docked-top {
+    top: 0;
+    left: 50%;
+    right: auto;
+    width: 400px;
+    height: 40px;
+    transform: translate(-50%, -100%);
+    border-radius: 0 0 16px 16px;
+    transition: transform 0.4s var(--ease-out-back), top 0s, left 0s, right 0s,
+                width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
+}
+.toolbar-right.docked-top.locked,
+.toolbar-right.docked-top.visible {
+    transform: translate(-50%, 0);
+}
+.toolbar-right.docked-top .vertical-tools {
+    flex-direction: row;
+    padding: 0 20px;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+}
+.toolbar-right.docked-top .vertical-icon svg {
+    width: 18px;
+    height: 18px;
+}
+.toolbar-right.docked-top::before {
+    top: 0;
+    left: -32px;
+    right: auto;
+    bottom: auto;
+    background: radial-gradient(circle at bottom left, transparent 32px, var(--current-bg) 32.5px);
+}
+.toolbar-right.docked-top::after {
+    top: 0;
+    right: -32px;
+    left: auto;
+    bottom: auto;
+    background: radial-gradient(circle at bottom right, transparent 32px, var(--current-bg) 32.5px);
+}
+
+/* Dock position toggle button — accent tint */
+.dock-pos-btn {
+    margin-top: auto;
+    opacity: 0.5;
+    transition: color 0.2s, opacity 0.2s, transform 0.2s;
+}
+.dock-pos-btn:hover {
+    color: var(--accent, #007AFF) !important;
+    opacity: 1;
+    transform: scale(1.15) !important;
+}
+
+
 /* --- Vertical Tools --- */
 .vertical-tools {
     display: flex;
@@ -978,7 +1059,7 @@ body.light-theme .community-action-btn:hover {
 }
 
 .prompt-btn:hover {
-    color: #fff;
+    color: var(--accent, #007AFF);
     transform: scale(1.1);
 }
 
@@ -1133,17 +1214,19 @@ body.light-theme .community-action-btn:hover {
     height: 20px;
 }
 
-/* --- Node Connection Effect (shared by OpenAI, Detect, Polymarket) --- */
+/* --- Node Connection Effect (shared by OpenAI, Detect, Polymarket, Alerts) --- */
 .right-openai-btn,
 .right-detect-btn,
-.right-polymarket-btn {
+.right-polymarket-btn,
+.right-alerts-btn {
     position: relative;
     z-index: 1;
 }
 
 .right-openai-btn::before,
 .right-detect-btn::before,
-.right-polymarket-btn::before {
+.right-polymarket-btn::before,
+.right-alerts-btn::before {
     content: '';
     position: absolute;
     left: -10px;
@@ -1158,7 +1241,8 @@ body.light-theme .community-action-btn:hover {
 
 .right-openai-btn::after,
 .right-detect-btn::after,
-.right-polymarket-btn::after {
+.right-polymarket-btn::after,
+.right-alerts-btn::after {
     content: '';
     position: absolute;
     left: -10px;
@@ -1170,6 +1254,31 @@ body.light-theme .community-action-btn:hover {
     border-radius: 50%;
     z-index: 1;
     box-shadow: 0 0 6px #00ff00;
+}
+
+/* Alerts bell hover accent */
+.right-alerts-btn:hover {
+    color: #f8bc16;
+}
+
+/* === Toggle Buttons: Active (blue) / Inactive (dimmed) === */
+.left-console-btn.active,
+.right-cube-btn.active {
+    color: var(--accent, #007AFF);
+    filter: drop-shadow(0 0 4px rgba(var(--accent-rgb, 0,122,255), 0.55));
+}
+
+.left-console-btn:not(.active),
+.right-cube-btn:not(.active) {
+    color: var(--text-dim);
+    opacity: 0.5;
+}
+
+/* Dark theme: use cyan accent */
+body.dark-theme .left-console-btn.active,
+body.dark-theme .right-cube-btn.active {
+    color: var(--accent, #00f2fe);
+    filter: drop-shadow(0 0 5px rgba(0, 242, 254, 0.5));
 }
 
 /* Specific Plus Button Styling */

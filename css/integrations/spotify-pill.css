@@ -1,7 +1,165 @@
-#spotifyPillBox {
+#bottomRightStack {
     position: fixed;
-    bottom: calc(var(--tab-height, 37px) + 15px); /* Dynamically stays above the tab bar */
+    bottom: calc(var(--tab-height, 37px) + 15px);
     right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.4s var(--ease-out-expo);
+    animation: spotifyPillSlideIn 0.8s var(--ease-out-back);
+}
+
+/* Universal rule: Nothing can overlap the right side panel */
+.ai-edge-right:hover ~ #bottomRightStack,
+.ai-edge-right.locked ~ #bottomRightStack,
+.ai-edge-right.visible ~ #bottomRightStack,
+.ai-edge-right.hovered ~ #bottomRightStack {
+    right: 65px;
+}
+
+/* ---- Cube wrapper: anchors the side arrows ---- */
+#cubeWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* narrow padding = arrows sit close to the cube edges */
+    padding: 0 8px;
+}
+
+/* Side arrows: tall, no background, gray chevron only */
+.cube-side-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    border-radius: 0;
+    width: 18px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0);
+    opacity: 0;
+    transition: opacity 0.22s ease, color 0.22s ease, transform 0.18s ease;
+    pointer-events: none;
+    z-index: 10;
+    padding: 0;
+}
+
+.cube-side-arrow--left  { left: 0; }
+.cube-side-arrow--right { right: 0; }
+
+.cube-side-arrow svg {
+    width: 18px;
+    height: 40px;
+    display: block;
+    flex-shrink: 0;
+}
+
+/* Reveal on CSS hover OR JS-managed .cube-arrows-visible class */
+#cubeWrapper:hover .cube-side-arrow,
+#cubeWrapper.cube-arrows-visible .cube-side-arrow {
+    opacity: 1;
+    color: rgba(160, 160, 160, 0.85);
+    pointer-events: auto;
+}
+
+#cubeWrapper:hover .cube-side-arrow:hover,
+#cubeWrapper.cube-arrows-visible .cube-side-arrow:hover {
+    color: rgba(220, 220, 220, 1);
+    transform: translateY(-50%) scale(1.1);
+}
+
+#cubeContainer {
+    width: 100%;
+    min-width: 180px;
+    height: 150px;
+    background: transparent;
+    border-radius: 20px;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+    position: relative;
+}
+
+#cubeContainer canvas {
+    border-radius: 20px;
+    pointer-events: auto;
+    display: block;
+    transition: opacity 0.35s ease;
+    /* Do NOT override width/height — Three.js sets pixel dimensions directly.
+       CSS overrides break WebGL hit-testing alignment. */
+}
+
+/* ---- Mode Icon Overlay ---- */
+/* Shows scattered-panels icon; hidden when in Shapes View (3D cube shown instead) */
+#cubeModeIcon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.35s ease;
+}
+
+#cubeModeIcon svg {
+    width: 78%;
+    height: 78%;
+    display: block;
+}
+
+/* Shapes View: hide the panels icon, let the 3D canvas show */
+#cubeWrapper[data-view-mode="shapes"] #cubeModeIcon {
+    opacity: 0;
+}
+
+/* All other modes: dim the canvas behind the icon */
+#cubeWrapper:not([data-view-mode="shapes"]) #cubeContainer canvas {
+    opacity: 0;
+}
+
+/* On page load (no data-view-mode yet) also hide canvas — panels icon is default */
+#cubeWrapper:not([data-view-mode]) #cubeContainer canvas {
+    opacity: 0;
+}
+
+/* ---- 3D Depth View label ---- */
+#cubeDepthLabel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -2px;
+    margin-bottom: -2px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    align-self: center;
+}
+
+.cube-label-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75);
+    white-space: nowrap;
+    user-select: none;
+}
+
+
+#spotifyPillBox {
     height: 40px; /* Reduced height from 54px */
     width: auto;
     min-width: 180px; /* Reduced from 220px */
@@ -11,20 +169,11 @@
     align-items: center;
     padding: 0 12px 0 4px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    z-index: 10000;
-    transition: all 0.4s var(--ease-out-expo);
     cursor: pointer;
-    animation: spotifyPillSlideIn 0.8s var(--ease-out-back);
     font-family: 'Inter', sans-serif;
 }
 
-/* Universal rule: Nothing can overlap the right side panel */
-.ai-edge-right:hover ~ #spotifyPillBox,
-.ai-edge-right.locked ~ #spotifyPillBox,
-.ai-edge-right.visible ~ #spotifyPillBox,
-.ai-edge-right.hovered ~ #spotifyPillBox {
-    right: 65px;
-}
+/* Deprecated selector from when spotify was stand-alone. Now #bottomRightStack is used */
 
 @keyframes spotifyPillSlideIn {
     0% { transform: translateY(100px) scale(0.8); opacity: 0; }

@@ -1,0 +1,32 @@
+<svg width="76" height="76" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+  <!-- Removed white background rect -->
+
+  <g transform="translate(2,0)">
+    <!-- Dashed divider -->
+    <line x1="19" y1="6" x2="19" y2="32" stroke="#999999" stroke-width="0.7" stroke-dasharray="2 2" stroke-linecap="round"/>
+
+    <!-- Mic (top left) -->
+    <g fill="none" stroke="#000" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" transform="translate(3,0)">
+      <rect x="4" y="4" width="5" height="8" rx="2.5"/>
+      <path d="M2.5,10 C2.5,13.5 4.5,15 6.5,15 C8.5,15 10.5,13.5 10.5,10"/>
+      <line x1="6.5" y1="15" x2="6.5" y2="17"/>
+      <line x1="4.5" y1="17" x2="8.5" y2="17"/>
+    </g>
+
+    <!-- Camera (bottom left) -->
+    <g fill="none" stroke="#000" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="22" width="13" height="10" rx="2"/>
+      <circle cx="8.5" cy="27.5" r="3"/>
+      <circle cx="8.5" cy="27.5" r="1.2"/>
+      <rect fill="#000" x="4" y="23.5" width="2.5" height="1.3" rx="0.5" opacity=".4" stroke="none"/>
+    </g>
+
+    <!-- Half star (right side, full height) -->
+    <clipPath id="half">
+      <rect x="19" y="0" width="19" height="38"/>
+    </clipPath>
+    <g clip-path="url(#half)">
+      <path fill="none" stroke="#000" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M19,7 l3.8,8.2 9,0.9 -6.7,6 1.9,8.8 -8,-4.5 -8,4.5 1.9,-8.8 -6.7,-6 9,-0.9z"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Chase Bank app icon: white octagonal pinwheel on blue background -->
+  <rect width="64" height="64" rx="12" fill="#1461A5"/>
+  <g transform="translate(32,32)">
+    <!-- Four interlocking L-shaped pieces forming the Chase pinwheel, white on blue -->
+    <!-- Each piece: vertical bar + horizontal extension, rotated 90 deg from previous -->
+
+    <!-- Piece 1 (top): bar goes up, arm extends right -->
+    <polygon points="-3.5,-19 3.5,-19 3.5,-3.5 14,-3.5 14,3.5 -3.5,3.5" fill="white"/>
+
+    <!-- Piece 2 (right): bar goes right, arm extends down -->
+    <polygon points="19,-3.5 19,3.5 3.5,3.5 3.5,14 -3.5,14 -3.5,-3.5" fill="white"/>
+
+    <!-- Piece 3 (bottom): bar goes down, arm extends left -->
+    <polygon points="3.5,19 -3.5,19 -3.5,3.5 -14,3.5 -14,-3.5 3.5,-3.5" fill="white"/>
+
+    <!-- Piece 4 (left): bar goes left, arm extends up -->
+    <polygon points="-19,3.5 -19,-3.5 -3.5,-3.5 -3.5,-14 3.5,-14 3.5,3.5" fill="white"/>
+  </g>
+</svg>

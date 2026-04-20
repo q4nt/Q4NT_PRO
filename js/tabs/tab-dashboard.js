@@ -8,7 +8,16 @@
         if (!pane) return;
         const paneId = pane.getAttribute('data-pane') || 'unknown';
 
-        if (pane.querySelector('.home-panels-container')) return;
+        if (pane.querySelector('.home-panels-container')) {
+            // If already generated, ensure Plotly charts resize if we just made them visible again
+            if (paneId === 'row2-chart' && typeof Plotly !== 'undefined') {
+                setTimeout(() => {
+                    const charts = pane.querySelectorAll('.js-plotly-plot');
+                    charts.forEach(c => Plotly.Plots.resize(c));
+                }, 50);
+            }
+            return;
+        }
 
         console.log(`[Q4NT Dashboard] Populating: ${paneId}`);
         pane.innerHTML = '';
@@ -28,6 +37,7 @@
             const panel = document.createElement('div');
             panel.className = 'q4-widget-panel';
             const title = `${tabTitle} ${i}`;
+            const contentIdStr = paneId === 'row2-chart' ? ` id="pc${i}"` : '';
             
             panel.innerHTML = `
                 <div class="q4-widget-header">
@@ -39,7 +49,7 @@
                         <button class="q4-widget-close" title="Close">${closeSvg}</button>
                     </div>
                 </div>
-                <div class="q4-widget-content"></div>
+                <div class="q4-widget-content"${contentIdStr}></div>
             `;
 
             // Drag-to-detach Logic
@@ -115,6 +125,10 @@
             });
 
             container.appendChild(panel);
+        }
+        
+        if (paneId === 'row2-chart' && typeof renderPlotlySubTabCharts === 'function') {
+            setTimeout(renderPlotlySubTabCharts, 50);
         }
     }
 

@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="css/core/themes.css">
     <link rel="stylesheet" href="css/components/components.css">
     <link rel="stylesheet" href="css/integrations/spotify-pill.css">
+    <link rel="stylesheet" href="css/components/data-bridge.css">
 </head>
 <body>
 
@@ -90,10 +91,26 @@
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                 </svg>
             </div>
+            <!-- Markets (Candlestick) -->
+            <div class="vertical-icon" title="Markets">
+                <svg viewBox="0 0 64 64" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m20 54h4v5h2v-5h4a1 1 0 0 0 1-1v-28a1 1 0 0 0 -1-1h-4v-5h-2v5h-4a1 1 0 0 0 -1 1v28a1 1 0 0 0 1 1z"/>
+                    <path d="m48 52h4v5h2v-5h4a1 1 0 0 0 1-1v-28a1 1 0 0 0 -1-1h-4v-5h-2v5h-4a1 1 0 0 0 -1 1v28a1 1 0 0 0 1 1z"/>
+                    <path d="m6 47h4v5h2v-5h4a1 1 0 0 0 1-1v-28a1 1 0 0 0 -1-1h-4v-5h-2v5h-4a1 1 0 0 0 -1 1v28a1 1 0 0 0 1 1zm1-28h8v26h-8z"/>
+                    <path d="m34 41h4v5h2v-5h4a1 1 0 0 0 1-1v-28a1 1 0 0 0 -1-1h-4v-5h-2v5h-4a1 1 0 0 0 -1 1v28a1 1 0 0 0 1 1zm1-28h8v26h-8z"/>
+                </svg>
+            </div>
 
         </div>
         <!-- Bottom Profile -->
         <div class="left-bottom-tools">
+            <!-- Console / Terminal -->
+            <button class="edge-btn left-console-btn" title="Console">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="4 17 10 11 4 5"></polyline>
+                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+            </button>
             <!-- Alert -->
             <button class="edge-btn right-alert-btn" title="Alerts">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -111,12 +128,6 @@
     <div class="ai-edge-panel ai-edge-right locked">
         <!-- Top Icons -->
         <div class="right-top-tools">
-            <!-- Add Widget -->
-            <button class="edge-btn right-plus-btn" id="add-widget-btn" title="Add Widget">
-                <svg viewBox="0 0 24 24" fill="none" stroke="url(#ai-blue-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 5v14M5 12h14"></path>
-                </svg>
-            </button>
             <!-- OpenAI -->
             <button class="edge-btn right-openai-btn" title="OpenAI">
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -137,8 +148,13 @@
             </button>
             <!-- Polymarket -->
             <button class="edge-btn right-polymarket-btn" title="Polymarket">
+                <img src="assets/company-logos-unofficial/polymarket.png" alt="Polymarket" style="width:20px;height:20px;object-fit:contain;border-radius:4px;">
+            </button>
+            <!-- Alerts -->
+            <button class="edge-btn right-alerts-btn" title="Alerts">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
             </button>
         </div>
@@ -160,11 +176,8 @@
             </button>
             <!-- Layout Options -->
             <button class="edge-btn grid-layout-btn" title="Layout Options">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 </svg>
             </button>
             <!-- Share -->
@@ -373,6 +386,9 @@
                     </svg>
                 </button>
                 <textarea class="prompt-input" placeholder="Type a message..."></textarea>
+                <button class="prompt-btn send-btn" title="Send Message" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
             </div>
             <div class="prompt-bottom-row">
                 <div class="prompt-actions-left">
@@ -398,8 +414,10 @@
                     <button class="prompt-btn attach-btn" title="Attach File">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                     </button>
-                    <button class="prompt-btn send-btn" title="Send Message">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <button class="prompt-btn right-plus-btn" id="add-widget-btn" title="Add Widget">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#ai-blue-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14M5 12h14"></path>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -487,6 +505,17 @@
                     <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
                     <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
                     <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <!-- Dock Position Toggle — always last -->
+            <div class="vertical-icon dock-pos-btn" id="dock-pos-btn" title="Move Toolbar: Right side">
+                <svg id="dock-pos-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Right-side indicator (default) -->
+                    <rect x="2" y="2" width="16" height="16" rx="2"/>
+                    <line x1="14" y1="2" x2="14" y2="18"/>
+                    <line x1="14" y1="6" x2="18" y2="6"/>
+                    <line x1="14" y1="10" x2="18" y2="10"/>
+                    <line x1="14" y1="14" x2="18" y2="14"/>
                 </svg>
             </div>
         </div>
@@ -578,17 +607,65 @@
 
 <!-- Floating Vertical Panel -->
 <div class="float-panel" id="float-panel" style="display: none;">
-    <div class="float-panel-header" id="float-panel-header">
-        <span class="float-panel-title">Panel</span>
-        <button class="float-panel-close" id="float-panel-close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="line">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
-    </div>
-    <div class="float-panel-body">
-        <!-- Panel content can go here -->
+    <div class="float-panel-body mr-body">
+
+        <!-- Top actions -->
+        <div class="mr-action-row">
+            <span class="mr-action-icon" style="color:#2563eb">+</span>
+            <span class="mr-action-label" style="color:#2563eb">New Watchlist</span>
+        </div>
+        <div class="mr-action-row">
+            <svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            <span class="mr-action-label" style="color:#2563eb">Trending</span>
+        </div>
+
+        <div class="mr-divider"></div>
+
+        <!-- ABCD section -->
+        <div class="mr-section-label">ABCD</div>
+        <div class="mr-item">
+            <svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            <span class="mr-label">ABCD Timeframes</span>
+        </div>
+        <div class="mr-item">
+            <svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
+            <span class="mr-label">ABCD Indicators</span>
+        </div>
+        <div class="mr-item">
+            <svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+            <span class="mr-label">ABCD Options</span>
+        </div>
+
+        <div class="mr-divider"></div>
+
+        <!-- Sector list -->
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">5G &amp; Telecom</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">AI &amp; Machine Learning</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Airlines &amp; Travel</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Banking &amp; Finance</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Biotech</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Cannabis</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">China Tech</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Crypto Related</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Cybersecurity</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Defense &amp; Aerospace</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Dividend Kings</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">EV &amp; Clean Energy</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Gold &amp; Silver</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">India Growth</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Iran War Related</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Lithium &amp; Battery</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Meme Stocks</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Nuclear Energy</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Oil Stocks</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Real Estate REITs</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Recent IPOs</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Retail &amp; E-Commerce</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Semiconductors</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Solar Energy</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Software &amp; SaaS</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Space &amp; Defense</span></div>
+
     </div>
     <!-- Resize handles -->
     <div class="float-panel-resize fp-res-r"  data-dir="r"></div>
@@ -599,45 +676,63 @@
 
 <!-- Floating Watchlist Drawer -->
 <div id="watchlist-drawer" class="watchlist-drawer">
-    <div class="market-intel-drawer">
-        <div class="intel-section">
-            <div class="intel-header">
-                <span class="intel-title">Live Tickers</span>
-                <span class="intel-badge">Live</span>
-            </div>
-            <div class="ticker-grid">
-                <div class="ticker-item up">BTC <span>$64,210 (+2.4%)</span></div>
-                <div class="ticker-item up">ETH <span>$3,450 (+1.8%)</span></div>
-                <div class="ticker-item down">SOL <span>$142 (-0.5%)</span></div>
-                <div class="ticker-item up">NVDA <span>$892 (+3.2%)</span></div>
-            </div>
+    <div class="float-panel-body mr-body">
+        <!-- Top actions -->
+        <div class="mr-action-row">
+            <span class="mr-action-icon" style="color:#2563eb">+</span>
+            <span class="mr-action-label" style="color:#2563eb">New Watchlist</span>
         </div>
-        <div class="intel-section">
-            <div class="intel-header">
-                <span class="intel-title">Upcoming Events</span>
-            </div>
-            <div class="event-list">
-                <div class="event-item">
-                    <div class="event-time">14:00</div>
-                    <div class="event-desc">FOMC Meeting Minutes</div>
-                </div>
-                <div class="event-item">
-                    <div class="event-time">16:30</div>
-                    <div class="event-desc">Earnings: TSLA Release</div>
-                </div>
-            </div>
+        <div class="mr-action-row">
+            <svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            <span class="mr-action-label" style="color:#2563eb">Trending</span>
         </div>
-        <div class="intel-section">
-            <div class="intel-header">
-                <span class="intel-title">Trending Topics</span>
-            </div>
-            <div class="tag-cloud">
-                <span class="tag">#CPI</span>
-                <span class="tag">#Nvidia</span>
-                <span class="tag">#Halving</span>
-                <span class="tag">#RateCut</span>
-            </div>
+
+        <div class="mr-divider"></div>
+
+        <!-- ABCD section -->
+        <div class="mr-section-label">ABCD</div>
+        <div class="mr-item">
+            <svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            <span class="mr-label">ABCD Timeframes</span>
         </div>
+        <div class="mr-item">
+            <svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
+            <span class="mr-label">ABCD Indicators</span>
+        </div>
+        <div class="mr-item">
+            <svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+            <span class="mr-label">ABCD Options</span>
+        </div>
+
+        <div class="mr-divider"></div>
+
+        <!-- Sector list -->
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">5G &amp; Telecom</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">AI &amp; Machine Learning</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Airlines &amp; Travel</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Banking &amp; Finance</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Biotech</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Cannabis</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">China Tech</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Crypto Related</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Cybersecurity</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Defense &amp; Aerospace</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Dividend Kings</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">EV &amp; Clean Energy</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Gold &amp; Silver</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">India Growth</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Iran War Related</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Lithium &amp; Battery</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Meme Stocks</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Nuclear Energy</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Oil Stocks</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Real Estate REITs</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Recent IPOs</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Retail &amp; E-Commerce</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Semiconductors</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Solar Energy</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Software &amp; SaaS</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Space &amp; Defense</span></div>
     </div>
 </div>
 
@@ -648,26 +743,6 @@
          <button class="btp-tab" data-tab="watchlist">
              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
              Market Research
-         </button>
-         <button class="btp-tab" data-tab="console">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-            Console
-        </button>
-        <button class="btp-tab" data-tab="output">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            Output
-        </button>
-        <button class="btp-tab" data-tab="telemetry">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-            Telemetry
-        </button>
-        <button class="btp-tab" data-tab="camera">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-            Camera
-        </button>
-         <button class="btp-tab" data-tab="canvas">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
-             Canvas
          </button>
          <button class="btp-tab" data-tab="views-3d">
              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -694,6 +769,15 @@
              </svg>
              Floors
          </button>
+         <button class="btp-tab" data-tab="views-blueprint">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                 <line x1="3" y1="9" x2="21" y2="9"></line>
+                 <line x1="9" y1="21" x2="9" y2="9"></line>
+             </svg>
+             Blueprint
+         </button>
+
 
         <div class="btp-strip-actions">
             <button class="btp-strip-btn" id="btp-minimize-btn" title="Minimize Panel">
@@ -708,10 +792,13 @@
     </div>
     <div class="btp-tab-strip row-2" id="btp-tab-strip-2" style="display: none; border-top: 1px solid rgba(0, 0, 0, 0.06);">
          <button class="btp-tab active" data-tab="row2-home">Home</button>
-         <button class="btp-tab" data-tab="row2-relevant">Relevant</button>
-         <button class="btp-tab" data-tab="row2-trending">Trending</button>
-         <button class="btp-tab" data-tab="row2-recent">Recent</button>
-         <button class="btp-tab" data-tab="row2-images">Images</button>
+         <div id="home-sub-tabs" style="display: flex; background-color: rgba(128, 128, 128, 0.15); border-radius: 6px; padding: 0 4px; margin: 2px 4px; transition: all 0.2s ease;">
+             <button class="btp-tab" data-tab="row2-relevant">Relevant</button>
+             <button class="btp-tab" data-tab="row2-trending">Trending</button>
+             <button class="btp-tab" data-tab="row2-recent">Recent</button>
+             <button class="btp-tab" data-tab="row2-images">Images</button>
+             <button class="btp-tab" data-tab="row2-other">Other</button>
+         </div>
          <button class="btp-tab" data-tab="row2-us">US</button>
          <button class="btp-tab" data-tab="row2-global">Global</button>
          <button class="btp-tab" data-tab="row2-chart">Chart</button>
@@ -721,21 +808,20 @@
          <button class="btp-tab" data-tab="row2-flow">Flow</button>
          <button class="btp-tab" data-tab="row2-predictions">Predictions</button>
          <button class="btp-tab" data-tab="row2-product">Product</button>
-         <button class="btp-tab" data-tab="row2-other">Other</button>
          <button class="btp-tab" data-tab="row2-events">Events</button>
+         <button class="btp-tab" data-tab="row2-themes-and-skins" style="margin-left: auto;">Themes and Skins</button>
     </div>
     <div class="btp-content-area">
         <div class="btp-pane" data-pane="watchlist">
             <div class="watchlist-placeholder">Select items to watch...</div>
         </div>
-        <div class="btp-pane" data-pane="console"></div>
-         <div class="btp-pane" data-pane="output">No output yet.</div>
-         <div class="btp-pane" data-pane="telemetry">Telemetry stream inactive.</div>
-         <div class="btp-pane" data-pane="camera">Camera: loading...</div>
-         <div class="btp-pane" data-pane="canvas"></div>
          <div class="btp-pane" data-pane="views-3d"></div>
          <div class="btp-pane" data-pane="views-f1"></div>
          <div class="btp-pane" data-pane="views-floors"></div>
+         <div class="btp-pane" data-pane="views-blueprint">
+             <div style="padding: 20px; color: #fff;">Blueprint content goes here... (2D wireframe drafting view)</div>
+         </div>
+
          <div class="btp-pane active" data-pane="row2-home"></div>
          <div class="btp-pane" data-pane="row2-relevant"></div>
          <div class="btp-pane" data-pane="row2-trending"></div>
@@ -752,6 +838,7 @@
          <div class="btp-pane" data-pane="row2-product"></div>
          <div class="btp-pane" data-pane="row2-other"></div>
          <div class="btp-pane" data-pane="row2-events"></div>
+         <div class="btp-pane" data-pane="row2-themes-and-skins"></div>
      </div>
  </div>
  </div> <!-- End ui-container -->
@@ -760,6 +847,31 @@
 <!-- Three.js Dependencies -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<!-- Plotly -->
+<script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+<script src="plotly-charts.js"></script>
+
+<!-- API Infrastructure (must load before any API clients) -->
+<script src="api/config.js"></script>
+<script src="api/api-cache.js"></script>
+<script src="api/api-registry.js"></script>
+
+<!-- API Clients (all register with ApiRegistry on load) -->
+<script src="api/polygon-api.js"></script>
+<script src="api/alpaca-api.js"></script>
+<script src="api/schwab-api.js"></script>
+<script src="api/polymarket-api.js"></script>
+<script src="api/draftkings-api.js"></script>
+<script src="api/nba-api.js"></script>
+<script src="api/ncaa-api.js"></script>
+<script src="api/worldbank-api.js"></script>
+<script src="api/zillow-api.js"></script>
+<script src="api/adsb-api.js"></script>
+<script src="api/cloudflare-api.js"></script>
+<script src="api/duckduckgo-api.js"></script>
+<script src="api/openai-api.js"></script>
+<script src="api/spotify-api.js"></script>
 
 <!-- Core Engine -->
 <script src="js/core/scene.js"></script>
@@ -788,16 +900,16 @@
 <script src="js/views/view-18.js"></script>
 <script src="js/views/view-19.js"></script>
 <script src="js/views/view-20.js"></script>
+<script src="js/views/view-21.js"></script>
+<script src="js/views/view-22.js"></script>
 
 <!-- Tab Controllers (1 file per tab) -->
 <script src="js/tabs/tab-watchlist.js"></script>
-<script src="js/tabs/tab-console.js"></script>
-<script src="js/tabs/tab-output.js"></script>
-<script src="js/tabs/tab-telemetry.js"></script>
-<script src="js/tabs/tab-camera.js"></script>
-<script src="js/tabs/tab-canvas.js"></script>
 <script src="js/tabs/tab-views.js"></script>
 <script src="js/tabs/tab-dashboard.js"></script>
+
+<!-- Data Bridge (tab-to-API orchestrator, loads after dashboard panels exist) -->
+<script src="js/core/data-bridge.js"></script>
 
 <!-- UI Modules -->
 <script src="js/core/themes.js"></script>
@@ -807,12 +919,20 @@
 <script src="js/ui/panels/float-panel.js"></script>
 <script src="js/ui/panels/detached-panels.js"></script>
 <script src="js/ui/panels/bottom-tab-panel.js"></script>
+<script src="js/ui/tooltips.js"></script>
 
 <!-- Command Panel Agent Orchestrator -->
 <script src="js/core/command-processor.js"></script>
 
-<!-- Spotify Integration -->
+<!-- Spotify Music Pill -->
 <script src="js/integrations/spotify-api.js"></script>
+
+<!-- View Cycle HUD (depth-mode navigation) — depends on DOM injected by spotify-api.js -->
+<script src="js/ui/view-cycle-hud.js"></script>
+
+<!-- Workspace Preview Cube (Three.js interactive cube) — depends on DOM injected by spotify-api.js -->
+<script src="js/ui/workspace-cube.js"></script>
+
 
 <!-- Auto Theme Switcher (geolocation + NOAA solar calc) -->
 <script src="js/core/theme-auto.js"></script>
@@ -820,5 +940,30 @@
 <!-- Startup (must be last) -->
 <script src="js/core/startup.js"></script>
 
+<script>
+    // 3D UI Flattening Mode Switcher
+    document.addEventListener('DOMContentLoaded', function() {
+        const modes = ['focus-plane', 'glass-press', 'blueprint', 'deck-mode', 'dimension-toggle'];
+        const body = document.body;
+        
+        document.querySelectorAll('.btp-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // Clear existing modes
+                modes.forEach(mode => {
+                    body.classList.remove(mode + '-mode');
+                });
+                
+                if (tabName && tabName.startsWith('views-')) {
+                    const modeName = tabName.replace('views-', '');
+                    if (modes.includes(modeName)) {
+                        body.classList.add(modeName + '-mode');
+                    }
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

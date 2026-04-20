@@ -119,8 +119,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const commandText = promptInput.value.trim();
         if (!commandText) return;
 
+        // --- Make It Snow interceptor ---
+        var isMakeSnow = commandText.match(/^(make|mkae|mak|let|start|trigger|turn on|give me|show)\s+(it|some|the)?\s*(snow|snoe|sno|snw|sbow|sn0w)(ing|fall)?\s*$/i) !== null;
+        if (isMakeSnow) {
+            promptInput.value = '';
+            promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+            console.log('[Q4NT] Triggering Make It Snow Easter Egg');
+            if (typeof window._triggerMakeItSnow === 'function') {
+                window._triggerMakeItSnow();
+                showSuccessMessage('Letting it snow! ❄️');
+                return;
+            }
+        }
+
+        // --- Make It Rain interceptor ---
+        var isMakeRain = commandText.match(/^(make|mkae|mak|let|start|trigger|turn on|give me|show)\s+(it|some|the)?\s*(rain|money|dollar|cash|paid|rich|mony|mnoey)(ing|fall)?\s*$/i) !== null;
+        if (isMakeRain) {
+            promptInput.value = '';
+            promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+            console.log('[Q4NT] Triggering Make It Rain Easter Egg');
+            if (typeof window._triggerMakeItRain === 'function') {
+                window._triggerMakeItRain();
+                showSuccessMessage('Making it rain! 💸');
+                return;
+            }
+        }
+
+        // --- Stop Weather interceptor ---
+        var isStopWeather = commandText.match(/^(stop|clear|end|quit|turn off|disable|remove|kill)\s+(it|the|some)?\s*(snow|rain|weather|effect|falling|money|dollar|cash)?\s*$/i) !== null;
+        if (isStopWeather && (commandText.includes('snow') || commandText.includes('rain') || commandText.includes('weather') || commandText.includes('effect') || commandText.includes('falling') || commandText.includes('money'))) {
+            promptInput.value = '';
+            promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+            console.log('[Q4NT] Stopping weather effects');
+            if (typeof window._stopMakeItSnow === 'function') window._stopMakeItSnow();
+            if (typeof window._stopMakeItRain === 'function') window._stopMakeItRain();
+            showSuccessMessage('Weather cleared.');
+            return;
+        }
+
         // Clear input early for better UX
         promptInput.value = '';
+        promptInput.dispatchEvent(new Event('input'));
         console.log(`Sending command to orchestrator: ${commandText}`);
 
         let thinkingIndicator = null;
@@ -884,4 +923,17 @@ document.addEventListener('DOMContentLoaded', () => {
             processCommand();
         }
     });
+
+    const toggleSendBtnVisibility = () => {
+        if (promptInput.value.length > 0) {
+            sendBtn.style.display = '';
+        } else {
+            sendBtn.style.display = 'none';
+        }
+    };
+
+    promptInput.addEventListener('input', toggleSendBtnVisibility);
+    
+    // Initialize state
+    toggleSendBtnVisibility();
 });

@@ -44,14 +44,85 @@ backgrounds[0] = function () {
             var palIdx   = Math.floor(i / 3) % objPalette.length;
             var pal      = objPalette[palIdx];
             var geo3d    = objGeoFactories[objIdx]();
-            var mat3d    = new THREE.MeshStandardMaterial({
-                color:      pal.color,
-                emissive:   pal.emissive,
-                metalness:  pal.metalness,
-                roughness:  pal.roughness,
-                transparent: true,
-                opacity:    0.92
-            });
+            
+            var mat3d;
+            if (objIdx === 0) { // Cube
+                if (!window._cubeChartTex) {
+                    // Chart Texture
+                    var canvasC = document.createElement('canvas');
+                    canvasC.width = 512; canvasC.height = 512;
+                    var ctxC = canvasC.getContext('2d');
+                    ctxC.fillStyle = '#1e1e1e'; ctxC.fillRect(0, 0, 512, 512);
+                    ctxC.strokeStyle = '#333'; ctxC.lineWidth = 2;
+                    for(let k=0; k<=10; k++) { ctxC.beginPath(); ctxC.moveTo(0, k*50); ctxC.lineTo(512, k*50); ctxC.stroke(); }
+                    ctxC.strokeStyle = '#00f2fe'; ctxC.lineWidth = 6;
+                    ctxC.beginPath(); ctxC.moveTo(50, 450);
+                    for(let k=0; k<=10; k++) ctxC.lineTo(50 + k*45, 450 - Math.random()*300 - 50);
+                    ctxC.stroke();
+                    window._cubeChartTex = new THREE.CanvasTexture(canvasC);
+
+                    // Grid with panels Texture
+                    var canvasG = document.createElement('canvas');
+                    canvasG.width = 512; canvasG.height = 512;
+                    var ctxG = canvasG.getContext('2d');
+                    ctxG.fillStyle = '#2d3436'; ctxG.fillRect(0, 0, 512, 512);
+                    ctxG.fillStyle = '#55efc4';
+                    for(let x=0; x<4; x++) {
+                        for(let y=0; y<4; y++) {
+                            ctxG.fillRect(x*120 + 20, y*120 + 20, 100, 100);
+                        }
+                    }
+                    window._cubeGridTex = new THREE.CanvasTexture(canvasG);
+
+                    // Network of Nodes Texture
+                    var canvasN = document.createElement('canvas');
+                    canvasN.width = 512; canvasN.height = 512;
+                    var ctxN = canvasN.getContext('2d');
+                    ctxN.fillStyle = '#1a0050'; ctxN.fillRect(0, 0, 512, 512);
+                    var nodes = [];
+                    for(let k=0; k<20; k++) nodes.push({x: Math.random()*400+50, y: Math.random()*400+50});
+                    ctxN.strokeStyle = '#a29bfe'; ctxN.lineWidth = 3;
+                    for(let k=0; k<nodes.length; k++) {
+                        for(let j=k+1; j<nodes.length; j++) {
+                            if (Math.random() > 0.85) {
+                                ctxN.beginPath(); ctxN.moveTo(nodes[k].x, nodes[k].y); ctxN.lineTo(nodes[j].x, nodes[j].y); ctxN.stroke();
+                            }
+                        }
+                    }
+                    ctxN.fillStyle = '#fff';
+                    nodes.forEach(n => { ctxN.beginPath(); ctxN.arc(n.x, n.y, 8, 0, Math.PI*2); ctxN.fill(); });
+                    window._cubeNodesTex = new THREE.CanvasTexture(canvasN);
+                }
+
+                var baseMatConfig = {
+                    metalness:  pal.metalness,
+                    roughness:  pal.roughness,
+                    transparent: true,
+                    opacity:    0.98
+                };
+                var chartMat = new THREE.MeshStandardMaterial(Object.assign({ map: window._cubeChartTex }, baseMatConfig));
+                var gridMat = new THREE.MeshStandardMaterial(Object.assign({ map: window._cubeGridTex }, baseMatConfig));
+                var nodesMat = new THREE.MeshStandardMaterial(Object.assign({ map: window._cubeNodesTex }, baseMatConfig));
+                var defaultMat = new THREE.MeshStandardMaterial({
+                    color:      pal.color,
+                    emissive:   pal.emissive,
+                    metalness:  pal.metalness,
+                    roughness:  pal.roughness,
+                    transparent: true,
+                    opacity:    0.92
+                });
+                // Assign to specific faces: Right, Left, Top, Bottom, Front, Back
+                mat3d = [chartMat, gridMat, nodesMat, defaultMat, defaultMat, defaultMat];
+            } else {
+                mat3d = new THREE.MeshStandardMaterial({
+                    color:      pal.color,
+                    emissive:   pal.emissive,
+                    metalness:  pal.metalness,
+                    roughness:  pal.roughness,
+                    transparent: true,
+                    opacity:    0.92
+                });
+            }
             mesh = new THREE.Mesh(geo3d, mat3d);
             mesh.position.set(pos.x, pos.y, pos.z);
 
