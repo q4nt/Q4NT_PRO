@@ -281,6 +281,12 @@ body.chart-view-active .workspace-pane {
     pointer-events: none;
 }
 
+/* Override for the 2D chart grid so panes can receive pan/scroll events */
+#fullscreen-chart-view .workspace-pane {
+    pointer-events: auto !important;
+    border: none !important; /* Removes any grid divider borders for zero padding */
+}
+
 body.chart-view-active #gv-panel-wrapper {
     display: none !important;
 }

@@ -28,6 +28,8 @@
         ['.right-share-btn',            'Share Workspace'],
         ['.right-store-btn',            'Q4NT Store'],
         ['.right-plus-btn',             'Add Widget'],
+        ['.alpaca-btn',                 'Alpaca Trading Integration'],
+        ['.schwab-btn',                 'Charles Schwab Integration'],
 
         // === Top Panel ===
         ['.minus-btn',                  'Remove Pane'],
@@ -62,12 +64,11 @@
         ['[data-tab="telemetry"]',      'Telemetry — Live Metrics'],
         ['[data-tab="camera"]',         'Camera — Video / ML Feed'],
         ['[data-tab="canvas"]',         'Canvas — Drawing & Annotation'],
-        ['[data-tab="views-3d"]',       '3D Views — Depth Workspace'],
-        ['[data-tab="views-f1"]',       'Flat Plane View'],
+
         ['[data-tab="views-floors"]',   'Floors View — Infinite Grid'],
         ['[data-tab="views-focus-plane"]', 'Focus Plane Mode'],
         ['[data-tab="views-glass-press"]', 'Glass Press Mode'],
-        ['[data-tab="views-blueprint"]',   'Blueprint Mode'],
+
         ['[data-tab="views-deck-mode"]',   'Deck Mode'],
         ['[data-tab="views-dimension-toggle"]', 'Dimension Toggle'],
         ['[data-tab="row2-home"]',      'Home Feed'],
@@ -87,6 +88,9 @@
         ['[data-tab="row2-other"]',     'Other'],
         ['[data-tab="row2-events"]',    'Events Calendar'],
         ['[data-tab="row2-themes-and-skins"]', 'Themes and Skins'],
+        ['[data-tab="row2-themes"]',    'Themes'],
+        ['[data-tab="row2-skins"]',     'Skins'],
+        ['[data-tab="row2-custom"]',    'Custom'],
         ['#btp-minimize-btn',           'Minimize Bottom Panel'],
 
         // === View Cycle HUD ===
@@ -111,16 +115,25 @@
 
     // ------------------------------------------------------------------
     // 2. Apply all tooltips
-    //    Only sets title if the element does NOT already have one.
+    //    Sets data-tooltip to avoid double (native + custom) tooltips.
     // ------------------------------------------------------------------
     function applyTooltips() {
+        // First apply registry tooltips
         TOOLTIPS.forEach(function(pair) {
             var selector = pair[0], text = pair[1];
             try {
                 document.querySelectorAll(selector).forEach(function(el) {
-                    if (!el.title) el.title = text;
+                    if (!el.getAttribute('data-tooltip')) el.setAttribute('data-tooltip', text);
                 });
             } catch (e) { /* invalid selector — skip */ }
+        });
+
+        // Then globally strip all title attributes to prevent native tooltips
+        document.querySelectorAll('[title]').forEach(function(el) {
+            if (!el.getAttribute('data-tooltip')) {
+                el.setAttribute('data-tooltip', el.getAttribute('title'));
+            }
+            el.removeAttribute('title');
         });
     }
 
@@ -146,7 +159,8 @@
             '  padding: 5px 10px;',
             '  border-radius: 6px;',
             '  box-shadow: 0 4px 16px rgba(0,0,0,0.22);',
-            '  white-space: nowrap;',
+            '  white-space: normal;',
+            '  max-width: 350px;',
             '  opacity: 0;',
             '  transition: opacity 0.12s ease;',
             '}',
@@ -168,9 +182,9 @@
         var currentEl = null;
 
         function show(el, x, y) {
-            var text = el.getAttribute('data-tooltip') || el.title;
+            var text = el.getAttribute('data-tooltip');
             if (!text) return;
-            tip.textContent = text;
+            tip.innerHTML = text;
             // Position: prefer below-right, flip if off-screen
             var tx = x + 14, ty = y + 18;
             if (tx + 200 > window.innerWidth)  tx = x - 14 - tip.offsetWidth;
@@ -191,7 +205,14 @@
             var el = e.target;
             // Walk up max 3 levels to find a titled element
             for (var i = 0; i < 3 && el && el !== document.body; i++) {
-                var text = el.getAttribute('data-tooltip') || el.title;
+                // Strip native titles on the fly just in case they were added dynamically
+                if (el.hasAttribute('title')) {
+                    if (!el.getAttribute('data-tooltip')) {
+                        el.setAttribute('data-tooltip', el.getAttribute('title'));
+                    }
+                    el.removeAttribute('title');
+                }
+                var text = el.getAttribute('data-tooltip');
                 if (text) {
                     if (el === currentEl) return;
                     hide();

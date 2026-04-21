@@ -102,6 +102,9 @@ class NativeChart {
     _checkDimensions() {
         if (!this.canvas) return false;
         
+        const rCanvas = this.canvas.getBoundingClientRect();
+        if (rCanvas.width === 0 || rCanvas.height === 0) return false;
+
         let leftWidth = 0;
         let rightWidth = 0;
         let bottomHeight = 0;
@@ -109,35 +112,41 @@ class NativeChart {
         const W = window.innerWidth;
         const H = window.innerHeight;
 
-        // Left panels
-        document.querySelectorAll('.ai-edge-left, .toolbar-left').forEach(p => {
-            const style = getComputedStyle(p);
-            if (style.opacity === '0' || style.display === 'none') return;
-            const r = p.getBoundingClientRect();
-            if (r.right > 0 && r.width > 0) {
-                leftWidth = Math.max(leftWidth, r.right);
-            }
-        });
+        // Left panels - only apply if chart is on the left edge
+        if (rCanvas.left < 100) {
+            document.querySelectorAll('.ai-edge-left, .toolbar-left').forEach(p => {
+                const style = getComputedStyle(p);
+                if (style.opacity === '0' || style.display === 'none') return;
+                const r = p.getBoundingClientRect();
+                if (r.right > 0 && r.width > 0) {
+                    leftWidth = Math.max(leftWidth, r.right);
+                }
+            });
+        }
 
-        // Right panels
-        document.querySelectorAll('.ai-edge-right, .toolbar-right').forEach(p => {
-            const style = getComputedStyle(p);
-            if (style.opacity === '0' || style.display === 'none') return;
-            const r = p.getBoundingClientRect();
-            if (r.left < W && r.width > 0) {
-                rightWidth = Math.max(rightWidth, W - r.left);
-            }
-        });
+        // Right panels - only apply if chart is on the right edge
+        if (rCanvas.right > W - 100) {
+            document.querySelectorAll('.ai-edge-right, .toolbar-right').forEach(p => {
+                const style = getComputedStyle(p);
+                if (style.opacity === '0' || style.display === 'none') return;
+                const r = p.getBoundingClientRect();
+                if (r.left < W && r.width > 0) {
+                    rightWidth = Math.max(rightWidth, W - r.left);
+                }
+            });
+        }
 
-        // Bottom panels
-        document.querySelectorAll('.bottom-tab-panel').forEach(p => {
-            const style = getComputedStyle(p);
-            if (style.opacity === '0' || style.display === 'none') return;
-            const r = p.getBoundingClientRect();
-            if (r.top < H && r.height > 0) {
-                bottomHeight = Math.max(bottomHeight, H - r.top);
-            }
-        });
+        // Bottom panels - only apply if chart is on the bottom edge
+        if (rCanvas.bottom > H - 100) {
+            document.querySelectorAll('.bottom-tab-panel').forEach(p => {
+                const style = getComputedStyle(p);
+                if (style.opacity === '0' || style.display === 'none') return;
+                const r = p.getBoundingClientRect();
+                if (r.top < H && r.height > 0) {
+                    bottomHeight = Math.max(bottomHeight, H - r.top);
+                }
+            });
+        }
 
         const newML = Math.max(48, leftWidth + 48);
         const newMR = Math.max(48, rightWidth + 48);
