@@ -7,78 +7,77 @@ ViewFactory.register(20, function () {
     var CARD_H       = 13;   // thinner
     var CONNECT_DIST = 140;
 
-    // Accent palette — matches channel accent colors
+    // Accent palette
     var ACCENTS = [0x00f2fe, 0xa29bfe, 0x55efc4, 0xfd79a8, 0xfdcb6e, 0x74b9ff];
 
-    // Channel/group sets for card variety
-    var CHANNELS = [
-        ['# general', '# trading', '# signals'],
-        ['# alerts',  '# macro',   '# options'],
-        ['# general', '# signals', '# flow'],
-        ['# trading', '# alerts',  '# quant'],
-    ];
-    var GROUPS = ['Community', 'Quant Research', 'Alpha Hunters', 'Risk Desk'];
-    var USERS  = ['Alex_Dev', 'QuantGuru', 'SarahTrade', 'TradingBot', 'MarcoFX',
-                  'SignalBot', 'AlertBot', 'RiskDesk', 'AlphaHunter', 'DataPilot'];
     var MSGS = [
-        'NVDA broke ATH. Options flow heavy.',
-        'DXY rolling over — long EUR/USD.',
-        'Websocket reconnect on volatility API.',
-        'FOMC minutes release in 15 minutes.',
-        'BTC entry: $63,800 | TP: $67,000',
-        'Check the new momentum signals.',
-        'Patch pushed to main branch.',
-        'Sizing into calls at $910 strike.',
-        'Risk-off detected across EM assets.',
-        'RSI divergence on QQQ, watch this.',
+        { text: 'SPY to $550 by EOY?', pct: 68 },
+        { text: 'BTC breaks $100k in Q3?', pct: 42 },
+        { text: 'Fed cuts rates in Sept?', pct: 85 },
+        { text: 'NVDA earnings > est?', pct: 91 },
+        { text: 'ETH spot ETF apv?', pct: 15 },
+        { text: 'TSLA deliveries beat?', pct: 54 },
+        { text: 'US avoids recession?', pct: 72 },
+        { text: 'AAPL launches AI?', pct: 33 },
+        { text: 'Gold hits $3000?', pct: 61 },
+        { text: 'OpenAI IPO in 2026?', pct: 28 }
     ];
 
-    // ---- Canvas texture builder: command panel style ----
-    function makeCardTex(accentHex, groupIdx, msgOffset) {
-        var S = 512, H = 208;  // shorter canvas = thinner card
+    // ---- Canvas texture builder: mock bet card ----
+    function makeCardTex(accentHex, msgObj) {
+        var S = 512, H = 185; 
         var cv = document.createElement('canvas');
         cv.width = S; cv.height = H;
         var ctx = cv.getContext('2d');
 
-        // Drop shadow (drawn before background)
-        ctx.shadowColor   = 'rgba(0,0,0,0.14)';
-        ctx.shadowBlur    = 22;
-        ctx.shadowOffsetY = 6;
-
-        // Solid white background with rounded corners
-        var R = 20;
+        // Solid dark background with rounded corners
+        var R = 16;
         ctx.beginPath();
-        ctx.moveTo(R, 4); ctx.lineTo(S - R, 4);
-        ctx.quadraticCurveTo(S - 2, 4, S - 2, R + 4);
-        ctx.lineTo(S - 2, H - R); ctx.quadraticCurveTo(S - 2, H - 2, S - R, H - 2);
-        ctx.lineTo(R, H - 2); ctx.quadraticCurveTo(2, H - 2, 2, H - R);
-        ctx.lineTo(2, R + 4); ctx.quadraticCurveTo(2, 4, R, 4);
+        ctx.moveTo(R, 2); ctx.lineTo(S - R, 2);
+        ctx.quadraticCurveTo(S - 2, 2, S - 2, R + 2);
+        ctx.lineTo(S - 2, H - R - 2); ctx.quadraticCurveTo(S - 2, H - 2, S - R, H - 2);
+        ctx.lineTo(R, H - 2); ctx.quadraticCurveTo(2, H - 2, 2, H - R - 2);
+        ctx.lineTo(2, R + 2); ctx.quadraticCurveTo(2, 2, R, 2);
         ctx.closePath();
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#15151a';
         ctx.fill();
 
-        // Reset shadow
-        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-
-        // Subtle border
-        ctx.strokeStyle = 'rgba(0,0,0,0.08)';
-        ctx.lineWidth   = 1.5;
+        // Accent border
+        ctx.strokeStyle = accentHex;
+        ctx.lineWidth = 4;
         ctx.stroke();
 
-        return new THREE.CanvasTexture(cv);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 28px Inter, sans-serif';
+        ctx.fillText(msgObj.text, 30, 50);
+
+        // Progress bar
+        ctx.fillStyle = '#333344';
+        ctx.fillRect(30, 80, S - 60, 24);
+        
+        ctx.fillStyle = accentHex;
+        ctx.fillRect(30, 80, (S - 60) * (msgObj.pct / 100), 24);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px Inter, sans-serif';
+        ctx.fillText(msgObj.pct + '% Yes', 30, 140);
+
+        var tex = new THREE.CanvasTexture(cv);
+        tex.minFilter = THREE.LinearFilter;
+        return tex;
     }
 
     // --- Node positions ---
     var nodeData = [];
     for (var i = 0; i < NODE_COUNT; i++) {
         nodeData.push({
+            idx:   i,
             x:     (Math.random() - 0.5) * 340,
             y:     (Math.random() - 0.5) * 220,
             z:     -(Math.random() * 380 + 20),
             color: ACCENTS[i % ACCENTS.length],
             accentHex: ['#00f2fe','#a29bfe','#55efc4','#fd79a8','#fdcb6e','#74b9ff'][i % 6],
-            groupIdx:  i % 4,
-            msgOffset: (i * 3) % MSGS.length,
+            msgObj: MSGS[i % MSGS.length],
             seed:  Math.random() * Math.PI * 2,
             speed: 0.06 + Math.random() * 0.10,
             amp:   0.4  + Math.random() * 0.7,
@@ -101,14 +100,14 @@ ViewFactory.register(20, function () {
                 ];
                 var geo = new THREE.BufferGeometry().setFromPoints(pts);
                 var mat = new THREE.LineBasicMaterial({
-                    color:       0x999999,   // grey lines to match light card style
+                    color:       0x555566,
                     transparent: true,
-                    opacity:     strength * 0.30
+                    opacity:     strength * 0.50
                 });
                 var line = new THREE.Line(geo, mat);
                 line.userData._isEdge = true;
                 bgGroup.add(line);
-                edgeMeshes.push({ line: line, iIdx: i, jIdx: j, mat: mat, baseOpa: strength * 0.40 });
+                edgeMeshes.push({ line: line, iIdx: i, jIdx: j, mat: mat, baseOpa: strength * 0.50 });
             }
         }
     }
@@ -116,27 +115,25 @@ ViewFactory.register(20, function () {
     // --- Card geometry (shared rounded rect) ---
     var cardShape   = createRoundedRectShape(CARD_W, CARD_H, 2.4);
     var cardGeo     = new THREE.ShapeGeometry(cardShape, 8);
-    var cardEdgeGeo = new THREE.EdgesGeometry(cardGeo, 15);
 
     // --- Node cards with command-panel canvas texture ---
     var cardMeshes = [];
     nodeData.forEach(function(nd) {
-        var tex     = makeCardTex(nd.accentHex, nd.groupIdx, nd.msgOffset);
+        var tex     = makeCardTex(nd.accentHex, nd.msgObj);
         var faceMat = new THREE.MeshBasicMaterial({
             map:         tex,
-            transparent: false,   // fully opaque — solid white
+            transparent: true,
             side:        THREE.DoubleSide
         });
         var card = new THREE.Mesh(cardGeo, faceMat);
         card.position.set(nd.x, nd.y, nd.z);
 
-        // No accent border — shadow is baked into the canvas texture
         card.userData = {
-            _isPanel: true, _isNodeCard: true,
+            _isPanel: true, _isNodeCard: true, nd: nd,
             homeX: nd.x, homeY: nd.y, homeZ: nd.z,
             targetX: nd.x, targetY: nd.y, targetZ: nd.z,
             seed: nd.seed, speed: nd.speed, amp: nd.amp,
-            baseOpacity: nd.baseOpacity
+            baseOpacity: nd.baseOpacity, targetScale: 1.0
         };
 
         bgGroup.add(card);
@@ -156,6 +153,117 @@ ViewFactory.register(20, function () {
         color: 0x4444aa, size: 0.7, transparent: true, opacity: 0.25, sizeAttenuation: true
     })));
 
+    // --- Raycasting & Interaction ---
+    var MAX_CLICK_DISTANCE = 400; 
+    var _panelMouse = new THREE.Vector2();
+    var _panelRaycaster = new THREE.Raycaster();
+    var _focusedNodes = [];
+    var _hoveredPanel = null;
+
+    var resetFocus = function() {
+        cardMeshes.forEach(function(c) {
+            c.mesh.userData.targetZ = c.mesh.userData.homeZ;
+            c.mesh.userData.targetX = c.mesh.userData.homeX;
+            c.mesh.userData.targetY = c.mesh.userData.homeY;
+        });
+        _focusedNodes = [];
+    };
+
+    var onPanelClick = function(e) {
+        if (e.target.closest && (e.target.closest('.beveled-panel') || e.target.closest('.top-nav-buttons') || e.target.closest('.prompt-container'))) return;
+        if (Q4Scene.activeViews.length === 0) return;
+        var cam = Q4Scene.activeViews[0].camera;
+        var container = document.getElementById('canvas-container');
+        if (!container) return;
+        var rect = container.getBoundingClientRect();
+        _panelMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        _panelMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        _panelRaycaster.setFromCamera(_panelMouse, cam);
+        
+        var intersects = _panelRaycaster.intersectObjects(bgGroup.children, false);
+        var hitObj = intersects.find(function(x) { return x.object.userData._isNodeCard; });
+        
+        if (hitObj && hitObj.distance <= MAX_CLICK_DISTANCE) {
+            var hitMesh = hitObj.object;
+            if (_focusedNodes.includes(hitMesh) && _focusedNodes[0] === hitMesh) {
+                resetFocus();
+            } else {
+                resetFocus();
+                hitMesh.userData.targetZ = cam.position.z - 40;
+                hitMesh.userData.targetX = cam.position.x;
+                hitMesh.userData.targetY = cam.position.y;
+                _focusedNodes.push(hitMesh);
+                
+                var hitNd = hitMesh.userData.nd;
+                edgeMeshes.forEach(function(edge) {
+                    var otherIdx = -1;
+                    if (edge.iIdx === hitNd.idx) otherIdx = edge.jIdx;
+                    else if (edge.jIdx === hitNd.idx) otherIdx = edge.iIdx;
+                    
+                    if (otherIdx !== -1) {
+                        var other = cardMeshes[otherIdx].mesh;
+                        other.userData.targetZ = cam.position.z - 60;
+                        var angle = Math.random() * Math.PI * 2;
+                        var r = 30 + Math.random() * 20;
+                        other.userData.targetX = cam.position.x + Math.cos(angle) * r;
+                        other.userData.targetY = cam.position.y + Math.sin(angle) * r;
+                        _focusedNodes.push(other);
+                    }
+                });
+            }
+        } else {
+            resetFocus();
+        }
+    };
+
+    var onPanelMouseMove = function(e) {
+        if (Q4Scene.activeViews.length === 0) return;
+        var cam = Q4Scene.activeViews[0].camera;
+        var container = document.getElementById('canvas-container');
+        if (!container) return;
+        var rect = container.getBoundingClientRect();
+        _panelMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        _panelMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        _panelRaycaster.setFromCamera(_panelMouse, cam);
+
+        var intersects = _panelRaycaster.intersectObjects(bgGroup.children, false);
+        var hitObj = intersects.find(function(x) { return x.object.userData._isNodeCard; });
+        
+        if (hitObj && hitObj.distance <= MAX_CLICK_DISTANCE) {
+            var hitMesh = hitObj.object;
+            if (_hoveredPanel !== hitMesh) {
+                if (_hoveredPanel && !_focusedNodes.includes(_hoveredPanel)) {
+                    _hoveredPanel.userData.targetScale = 1.0;
+                }
+                _hoveredPanel = hitMesh;
+                if (!_focusedNodes.includes(_hoveredPanel)) {
+                    _hoveredPanel.userData.targetScale = 1.15;
+                }
+            }
+            container.style.cursor = 'pointer';
+        } else {
+            if (_hoveredPanel) {
+                if (!_focusedNodes.includes(_hoveredPanel)) {
+                    _hoveredPanel.userData.targetScale = 1.0;
+                }
+                _hoveredPanel = null;
+            }
+            container.style.cursor = 'default';
+        }
+    };
+
+    window.addEventListener('click', onPanelClick);
+    window.addEventListener('mousemove', onPanelMouseMove);
+
+    bgGroup.userData.cleanup = function() {
+        window.removeEventListener('click', onPanelClick);
+        window.removeEventListener('mousemove', onPanelMouseMove);
+        _focusedNodes = [];
+        _hoveredPanel = null;
+        var container = document.getElementById('canvas-container');
+        if (container) container.style.cursor = 'default';
+    };
+
     // --- Animation ---
     Q4Scene.currentBgAnimate = function(t) {
         var camZ      = Q4Scene.activeViews.length ? Q4Scene.activeViews[0].camera.position.z : 80;
@@ -163,19 +271,68 @@ ViewFactory.register(20, function () {
 
         cardMeshes.forEach(function(entry) {
             var mesh = entry.mesh, nd = entry.nd;
-            var bobY = nd.y + Math.sin(t * nd.speed + nd.seed) * nd.amp;
-            mesh.position.y += (bobY - mesh.position.y) * 0.04;
+            
+            // Movement interpolation
+            var ls = 0.08;
+            mesh.position.z += (mesh.userData.targetZ - mesh.position.z) * ls;
+            mesh.position.x += (mesh.userData.targetX - mesh.position.x) * ls;
+            var bobY = mesh.userData.targetY + Math.sin(t * nd.speed + nd.seed) * nd.amp;
+            mesh.position.y += (bobY - mesh.position.y) * ls;
+
+            // Scale interpolation
+            var targetS = mesh.userData.targetScale || 1.0;
+            if (_focusedNodes.includes(mesh) && _focusedNodes[0] === mesh) targetS = 1.25;
+            else if (_focusedNodes.includes(mesh)) targetS = 1.1;
+            mesh.scale.x += (targetS - mesh.scale.x) * 0.2;
+            mesh.scale.y += (targetS - mesh.scale.y) * 0.2;
+            mesh.scale.z += (targetS - mesh.scale.z) * 0.2;
 
             var depth = camZ - mesh.position.z;
             var dOp   = depth > fadeStart ? Math.max(0, 1 - (depth - fadeStart) / (fadeEnd - fadeStart)) : 1;
-            mesh.material.opacity = nd.baseOpacity * dOp;
-            mesh.visible          = dOp > 0.01;
+            
+            if (_focusedNodes.length > 0) {
+                if (_focusedNodes.includes(mesh)) {
+                    mesh.material.opacity = 1.0;
+                    mesh.visible = true;
+                } else {
+                    mesh.material.opacity = nd.baseOpacity * dOp * 0.3; // dim unfocused
+                    mesh.visible = dOp > 0.01;
+                }
+            } else {
+                mesh.material.opacity = nd.baseOpacity * dOp;
+                mesh.visible = dOp > 0.01;
+            }
         });
 
         // Pulse connection lines
         edgeMeshes.forEach(function(e) {
+            var iMesh = cardMeshes[e.iIdx].mesh;
+            var jMesh = cardMeshes[e.jIdx].mesh;
+            
+            // Update line positions based on node positions
+            var positions = e.line.geometry.attributes.position.array;
+            positions[0] = iMesh.position.x;
+            positions[1] = iMesh.position.y;
+            positions[2] = iMesh.position.z;
+            positions[3] = jMesh.position.x;
+            positions[4] = jMesh.position.y;
+            positions[5] = jMesh.position.z;
+            e.line.geometry.attributes.position.needsUpdate = true;
+            
             var pulse = 0.7 + 0.3 * Math.sin(t * 0.4 + e.iIdx * 0.3);
-            e.mat.opacity = e.baseOpa * pulse;
+            
+            if (_focusedNodes.length > 0) {
+                if (_focusedNodes.includes(iMesh) && _focusedNodes.includes(jMesh)) {
+                    e.mat.opacity = 1.0;
+                    e.mat.color.setHex(0xffffff);
+                } else {
+                    e.mat.opacity = e.baseOpa * pulse * 0.1;
+                    e.mat.color.setHex(0x555566);
+                }
+            } else {
+                e.mat.opacity = e.baseOpa * pulse;
+                e.mat.color.setHex(0x555566);
+            }
         });
     };
 });
