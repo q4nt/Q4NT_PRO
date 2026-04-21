@@ -33,6 +33,18 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/core/main.css">
+    <style>
+    /* Brokerage icons should only appear in the native chart view */
+    body.chart-view-active .alpaca-btn,
+    body.chart-view-active .schwab-btn {
+        display: flex !important;
+    }
+    
+    /* Hide Q4NT logo in chart view */
+    body.chart-view-active .logo-text {
+        display: none !important;
+    }
+    </style>
     <link rel="stylesheet" href="css/components/intel-drawer.css">
     <link rel="stylesheet" href="css/core/themes.css">
     <link rel="stylesheet" href="css/components/components.css">
@@ -117,23 +129,35 @@
                 </svg>
             </div>
 
-            <!-- Dashboard -->
-            <div class="vertical-icon dashboard-icon" title="Dashboard">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-                </svg>
-            </div>
-            <!-- Folder -->
-            <div class="vertical-icon" title="Folder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            <!-- Default View -->
+            <div class="vertical-icon dashboard-icon" id="nav-default-view-btn" title="Default View">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                    <defs>
+                        <filter id="sp-s1" x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="0.5" stdDeviation="0.5" flood-color="#000" flood-opacity="0.1"/>
+                        </filter>
+                        <filter id="sp-s2" x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="0.8" stdDeviation="0.8" flood-color="#000" flood-opacity="0.14"/>
+                        </filter>
+                        <filter id="sp-s3" x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="1.2" stdDeviation="1.2" flood-color="#000" flood-opacity="0.18"/>
+                        </filter>
+                        <filter id="sp-s4" x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="1.6" stdDeviation="1.5" flood-color="#000" flood-opacity="0.22"/>
+                        </filter>
+                        <filter id="sp-s5" x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="2" stdDeviation="1.8" flood-color="#000" flood-opacity="0.28"/>
+                        </filter>
+                    </defs>
+                    <rect x="28" y="5" width="15" height="10" rx="1.5" fill="#888888" filter="url(#sp-s1)"/>
+                    <rect x="4" y="14" width="16" height="11" rx="1.5" fill="#a0a0a0" filter="url(#sp-s2)"/>
+                    <rect x="27" y="25" width="17" height="11" rx="1.8" fill="#b8b8b8" filter="url(#sp-s3)"/>
+                    <rect x="8" y="31" width="17" height="12" rx="1.8" fill="#d0d0d0" filter="url(#sp-s4)"/>
+                    <rect x="15" y="15" width="19" height="13" rx="2" fill="#eeeeee" filter="url(#sp-s5)"/>
                 </svg>
             </div>
             <!-- World -->
-            <div class="vertical-icon" title="World">
+            <div class="vertical-icon" id="nav-world-btn" title="World">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="2" y1="12" x2="22" y2="12"></line>
@@ -141,7 +165,7 @@
                 </svg>
             </div>
             <!-- Markets (Candlestick) -->
-            <div class="vertical-icon" title="Markets">
+            <div class="vertical-icon" id="nav-markets-btn" title="Markets">
                 <svg viewBox="0 0 64 64" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="m20 54h4v5h2v-5h4a1 1 0 0 0 1-1v-28a1 1 0 0 0 -1-1h-4v-5h-2v5h-4a1 1 0 0 0 -1 1v28a1 1 0 0 0 1 1z"/>
                     <path d="m48 52h4v5h2v-5h4a1 1 0 0 0 1-1v-28a1 1 0 0 0 -1-1h-4v-5h-2v5h-4a1 1 0 0 0 -1 1v28a1 1 0 0 0 1 1z"/>
@@ -149,17 +173,41 @@
                     <path d="m34 41h4v5h2v-5h4a1 1 0 0 0 1-1v-28a1 1 0 0 0 -1-1h-4v-5h-2v5h-4a1 1 0 0 0 -1 1v28a1 1 0 0 0 1 1zm1-28h8v26h-8z"/>
                 </svg>
             </div>
-
+            <!-- Trending -->
+            <div class="vertical-icon" id="nav-trending-btn" title="Trending">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                    <polyline points="16 7 22 7 22 13"></polyline>
+                </svg>
+            </div>
+            <!-- Sports Research -->
+            <div class="vertical-icon" id="nav-sports-btn" title="Sports Research">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
+            </div>
+            <!-- Pop Culture -->
+            <div class="vertical-icon" id="nav-popculture-btn" title="Pop Culture">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                    <polyline points="17 2 12 7 7 2"></polyline>
+                </svg>
+            </div>
         </div>
         <!-- Bottom Profile -->
         <div class="left-bottom-tools">
             <!-- Undo / Redo -->
             <div class="edge-btn" title="Undo / Redo" style="display: flex; gap: 4px; align-items: center; justify-content: center; flex-direction: row; cursor: default; background: transparent; border: none; padding: 0;">
-                <svg id="global-undo-btn" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+                <svg id="global-undo-btn" class="undo-redo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="21 22 5 12 21 2"></polyline>
                 </svg>
                 <div style="width: 1px; height: 24px; background: rgba(0,0,0,0.15);"></div>
-                <svg id="global-redo-btn" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+                <svg id="global-redo-btn" class="undo-redo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 2 19 12 3 22"></polyline>
                 </svg>
             </div>
@@ -168,6 +216,12 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="4 17 10 11 4 5"></polyline>
                     <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+            </button>
+            <!-- Folder -->
+            <button class="edge-btn" title="Folder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                 </svg>
             </button>
             <!-- Alert -->
@@ -209,11 +263,26 @@
             <button class="edge-btn right-polymarket-btn" title="Polymarket">
                 <img src="assets/company-logos-unofficial/polymarket.png" alt="Polymarket" style="width:20px;height:20px;object-fit:contain;border-radius:4px;">
             </button>
+            <!-- Alpaca (Chart View Only) -->
+            <button class="edge-btn alpaca-btn" title="Alpaca Trading" style="display: none;">
+                <img src="assets/company-logos-unofficial/alpaca.svg.png" alt="Alpaca" style="width:20px;height:20px;object-fit:contain;border-radius:4px;">
+            </button>
+            <!-- Schwab (Chart View Only) -->
+            <button class="edge-btn schwab-btn" title="Charles Schwab" style="display: none;">
+                <img src="assets/company-logos-unofficial/Charles_Schwab_Corporation_logo.svg" alt="Charles Schwab" style="width:20px;height:20px;object-fit:contain;border-radius:4px;">
+            </button>
             <!-- Alerts -->
             <button class="edge-btn right-alerts-btn" title="Alerts">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+            </button>
+            <!-- Journal -->
+            <button class="edge-btn right-journal-btn" title="Journal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
             </button>
         </div>
@@ -485,34 +554,67 @@
 
     <div class="beveled-panel toolbar-left">
         <div class="panel-bg"></div>
-        <div class="vertical-tools" style="justify-content: flex-start; padding-top: 15px; opacity: 0; pointer-events: none;">
-            <!-- Icons removed from toolbar, moved to edge panel -->
-        </div>
-        <div class="hud-dial-container">
-            <svg class="hud-svg" viewBox="0 0 50 200">
-                <g class="interactive-dial">
-                    <!-- Vertical Track -->
-                    <line x1="25" y1="10" x2="25" y2="190" stroke="rgba(0, 0, 0, 0.15)" stroke-width="4" stroke-linecap="round" />
-                    <!-- Major Ticks -->
-                    <line x1="18" y1="10" x2="25" y2="10" stroke="rgba(0, 0, 0, 0.5)" stroke-width="2" />
-                    <line x1="18" y1="55" x2="25" y2="55" stroke="rgba(0, 0, 0, 0.5)" stroke-width="2" />
-                    <line x1="18" y1="100" x2="25" y2="100" stroke="rgba(0, 0, 0, 0.5)" stroke-width="2" />
-                    <line x1="18" y1="145" x2="25" y2="145" stroke="rgba(0, 0, 0, 0.5)" stroke-width="2" />
-                    <line x1="18" y1="190" x2="25" y2="190" stroke="rgba(0, 0, 0, 0.5)" stroke-width="2" />
-                    <!-- Minor Ticks -->
-                    <line x1="22" y1="32.5" x2="25" y2="32.5" stroke="rgba(0, 0, 0, 0.25)" stroke-width="1" />
-                    <line x1="22" y1="77.5" x2="25" y2="77.5" stroke="rgba(0, 0, 0, 0.25)" stroke-width="1" />
-                    <line x1="22" y1="122.5" x2="25" y2="122.5" stroke="rgba(0, 0, 0, 0.25)" stroke-width="1" />
-                    <line x1="22" y1="167.5" x2="25" y2="167.5" stroke="rgba(0, 0, 0, 0.25)" stroke-width="1" />
-                    <!-- Values -->
-                    <text x="14" y="14" fill="#333333" font-size="10" font-weight="600" text-anchor="end" font-family="'Inter', sans-serif">100</text>
-                    <text x="14" y="104" fill="#333333" font-size="10" font-weight="600" text-anchor="end" font-family="'Inter', sans-serif">50</text>
-                    <text x="14" y="194" fill="#333333" font-size="10" font-weight="600" text-anchor="end" font-family="'Inter', sans-serif">0</text>
-                </g>
-                <!-- Alignment indicator -->
-                <polygon points="35,95 40,100 35,105" fill="#007AFF" />
-                <line x1="35" y1="100" x2="25" y2="100" stroke="#007AFF" stroke-width="2" />
-            </svg>
+        <div class="vertical-tools">
+            <!-- Journal -->
+            <div class="vertical-icon" title="Journal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <!-- Search -->
+            <div class="vertical-icon" title="Search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <!-- Star -->
+            <div class="vertical-icon" title="Favorites">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+            </div>
+            <!-- Settings -->
+            <div class="vertical-icon" title="Settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </div>
+            <!-- Replay -->
+            <div class="vertical-icon" id="chart-replay-btn" title="Replay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+            </div>
+            <!-- Axis Visibility -->
+            <div class="vertical-icon" id="chart-axes-btn" title="Toggle Axes">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+            </div>
+            <!-- Grid Visibility -->
+            <div class="vertical-icon" id="chart-grid-btn" title="Toggle Grid">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="3" y1="15" x2="21" y2="15"></line>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                    <line x1="15" y1="3" x2="15" y2="21"></line>
+                </svg>
+            </div>
+            <!-- Font Size -->
+            <div class="vertical-icon" id="chart-font-btn" title="Font Size">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                    <line x1="9" y1="20" x2="15" y2="20"></line>
+                    <line x1="12" y1="4" x2="12" y2="20"></line>
+                </svg>
+            </div>
         </div>
         <span class="panel-content">Left Toolbar</span>
     </div>
@@ -520,44 +622,38 @@
     <div class="beveled-panel toolbar-right">
         <div class="panel-bg"></div>
         <div class="vertical-tools">
-            <div class="vertical-icon view-toggle-btn" id="global-view-toggle" title="Toggle 3D / 2D">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                </svg>
-            </div>
-            <div class="vertical-icon" title="Journal">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                </svg>
-            </div>
-            <div class="vertical-icon" title="Diagonal Line">
+
+
+            <div class="vertical-icon" id="tool-line" title="Diagonal Line">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="19" x2="19" y2="5"></line>
                 </svg>
             </div>
-            <div class="vertical-icon" title="Rectangle">
+            <div class="vertical-icon" id="tool-rect" title="Rectangle">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 </svg>
             </div>
-            <div class="vertical-icon" title="Textbox">
+            <div class="vertical-icon" id="tool-text" title="Textbox">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="4 7 4 4 20 4 20 7"></polyline>
                     <line x1="9" y1="20" x2="15" y2="20"></line>
                     <line x1="12" y1="4" x2="12" y2="20"></line>
                 </svg>
             </div>
-            <div class="vertical-icon" title="Percent">
+            <div class="vertical-icon" id="tool-color" title="Color">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                </svg>
+            </div>
+            <div class="vertical-icon" id="tool-percent" title="Percent">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="5" x2="5" y2="19"></line>
                     <circle cx="6.5" cy="6.5" r="2.5"></circle>
                     <circle cx="17.5" cy="17.5" r="2.5"></circle>
                 </svg>
             </div>
-            <div class="vertical-icon" title="Scissors">
+            <div class="vertical-icon" id="tool-scissors" title="Scissors">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="6" cy="6" r="3"></circle>
                     <circle cx="6" cy="18" r="3"></circle>
@@ -582,11 +678,126 @@
     </div>
 
     <div class="theme-options-panel">
-        <div class="theme-grid-container">
-            <div class="theme-option dark" data-theme="dark">Dark</div>
+        <div class="theme-section-label">MODE</div>
+        <div class="theme-mode-row">
             <div class="theme-option light" data-theme="light">Light</div>
-            <div class="theme-option blue" data-theme="blue">Ocean</div>
-            <div class="theme-option green" data-theme="green">Forest</div>
+            <div class="theme-option dark" data-theme="dark">Dark</div>
+        </div>
+        <div class="theme-divider"></div>
+        <div class="theme-section-label">COLOR PALETTES</div>
+        <div class="theme-palette-grid">
+            <div class="theme-palette-swatch" data-theme="ocean" title="Ocean">
+                <span class="swatch-color" style="background:#0a1929;"></span>
+                <span class="swatch-color" style="background:#132f4c;"></span>
+                <span class="swatch-color" style="background:#00f2fe;"></span>
+                <span class="swatch-color" style="background:#e0f7fa;"></span>
+                <span class="swatch-name">Ocean</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="forest" title="Forest">
+                <span class="swatch-color" style="background:#002e17;"></span>
+                <span class="swatch-color" style="background:#003d1f;"></span>
+                <span class="swatch-color" style="background:#00ff88;"></span>
+                <span class="swatch-color" style="background:#e0ffe6;"></span>
+                <span class="swatch-name">Forest</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="crimson" title="Crimson">
+                <span class="swatch-color" style="background:#1a0505;"></span>
+                <span class="swatch-color" style="background:#3d0f0f;"></span>
+                <span class="swatch-color" style="background:#ff4444;"></span>
+                <span class="swatch-color" style="background:#ffe0e0;"></span>
+                <span class="swatch-name">Crimson</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="amethyst" title="Amethyst">
+                <span class="swatch-color" style="background:#1a0a2e;"></span>
+                <span class="swatch-color" style="background:#2d1b54;"></span>
+                <span class="swatch-color" style="background:#a78bfa;"></span>
+                <span class="swatch-color" style="background:#ede9fe;"></span>
+                <span class="swatch-name">Amethyst</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="sunset" title="Sunset">
+                <span class="swatch-color" style="background:#1a0f05;"></span>
+                <span class="swatch-color" style="background:#3d2510;"></span>
+                <span class="swatch-color" style="background:#f97316;"></span>
+                <span class="swatch-color" style="background:#fff3e0;"></span>
+                <span class="swatch-name">Sunset</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="arctic" title="Arctic">
+                <span class="swatch-color" style="background:#0c1a2e;"></span>
+                <span class="swatch-color" style="background:#1e3a5f;"></span>
+                <span class="swatch-color" style="background:#38bdf8;"></span>
+                <span class="swatch-color" style="background:#e0f2fe;"></span>
+                <span class="swatch-name">Arctic</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="rose" title="Rose">
+                <span class="swatch-color" style="background:#1f0a18;"></span>
+                <span class="swatch-color" style="background:#3d1530;"></span>
+                <span class="swatch-color" style="background:#f472b6;"></span>
+                <span class="swatch-color" style="background:#fce7f3;"></span>
+                <span class="swatch-name">Rose</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="emerald" title="Emerald">
+                <span class="swatch-color" style="background:#052e16;"></span>
+                <span class="swatch-color" style="background:#0f5132;"></span>
+                <span class="swatch-color" style="background:#34d399;"></span>
+                <span class="swatch-color" style="background:#d1fae5;"></span>
+                <span class="swatch-name">Emerald</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="gold" title="Gold">
+                <span class="swatch-color" style="background:#1a1505;"></span>
+                <span class="swatch-color" style="background:#3d3010;"></span>
+                <span class="swatch-color" style="background:#fbbf24;"></span>
+                <span class="swatch-color" style="background:#fef9c3;"></span>
+                <span class="swatch-name">Gold</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="slate" title="Slate">
+                <span class="swatch-color" style="background:#0f172a;"></span>
+                <span class="swatch-color" style="background:#1e293b;"></span>
+                <span class="swatch-color" style="background:#64748b;"></span>
+                <span class="swatch-color" style="background:#e2e8f0;"></span>
+                <span class="swatch-name">Slate</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="neon" title="Neon">
+                <span class="swatch-color" style="background:#0a0a0a;"></span>
+                <span class="swatch-color" style="background:#1a1a1a;"></span>
+                <span class="swatch-color" style="background:#39ff14;"></span>
+                <span class="swatch-color" style="background:#ccffcc;"></span>
+                <span class="swatch-name">Neon</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="coral" title="Coral">
+                <span class="swatch-color" style="background:#1a0d0a;"></span>
+                <span class="swatch-color" style="background:#3d2018;"></span>
+                <span class="swatch-color" style="background:#fb7185;"></span>
+                <span class="swatch-color" style="background:#ffe4e6;"></span>
+                <span class="swatch-name">Coral</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="midnight" title="Midnight">
+                <span class="swatch-color" style="background:#020617;"></span>
+                <span class="swatch-color" style="background:#0f172a;"></span>
+                <span class="swatch-color" style="background:#818cf8;"></span>
+                <span class="swatch-color" style="background:#e0e7ff;"></span>
+                <span class="swatch-name">Midnight</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="copper" title="Copper">
+                <span class="swatch-color" style="background:#1c1210;"></span>
+                <span class="swatch-color" style="background:#3d2a22;"></span>
+                <span class="swatch-color" style="background:#d97706;"></span>
+                <span class="swatch-color" style="background:#fef3c7;"></span>
+                <span class="swatch-name">Copper</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="teal" title="Teal">
+                <span class="swatch-color" style="background:#042f2e;"></span>
+                <span class="swatch-color" style="background:#0f4f4e;"></span>
+                <span class="swatch-color" style="background:#2dd4bf;"></span>
+                <span class="swatch-color" style="background:#ccfbf1;"></span>
+                <span class="swatch-name">Teal</span>
+            </div>
+            <div class="theme-palette-swatch" data-theme="obsidian" title="Obsidian">
+                <span class="swatch-color" style="background:#050505;"></span>
+                <span class="swatch-color" style="background:#1a1a1a;"></span>
+                <span class="swatch-color" style="background:#525252;"></span>
+                <span class="swatch-color" style="background:#d4d4d4;"></span>
+                <span class="swatch-name">Obsidian</span>
+            </div>
         </div>
     </div>
 
@@ -697,33 +908,56 @@
 
         <div class="mr-divider"></div>
 
+        <!-- Events list -->
+        <div class="mr-section-label">EVENTS</div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Iran War Related</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Trade Talks</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Fed Rate Decision</span></div>
+
+        <div class="mr-divider"></div>
+
         <!-- Sector list -->
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">5G &amp; Telecom</span></div>
+        <!-- Trending -->
+        <div class="mr-section-label">TRENDING</div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">AI &amp; Machine Learning</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Airlines &amp; Travel</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Banking &amp; Finance</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Biotech</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Cannabis</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">China Tech</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Crypto Related</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Meme Stocks</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Nuclear Energy</span></div>
+
+        <div class="mr-divider"></div>
+
+        <!-- Selling Off -->
+        <div class="mr-section-label">SELLING OFF</div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span class="mr-label">Airlines &amp; Travel</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span class="mr-label">Cannabis</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span class="mr-label">China Tech</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span class="mr-label">Real Estate REITs</span></div>
+
+        <div class="mr-divider"></div>
+
+        <!-- Gaining Momentum -->
+        <div class="mr-section-label">GAINING MOMENTUM</div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Cybersecurity</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Defense &amp; Aerospace</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Semiconductors</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Software &amp; SaaS</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Space &amp; Defense</span></div>
+
+        <div class="mr-divider"></div>
+
+        <!-- Custom Watchlist -->
+        <div class="mr-section-label">MY CUSTOM WATCHLIST</div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">5G &amp; Telecom</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Banking &amp; Finance</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Biotech</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Dividend Kings</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">EV &amp; Clean Energy</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Gold &amp; Silver</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">India Growth</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Iran War Related</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Lithium &amp; Battery</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Meme Stocks</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Nuclear Energy</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Oil Stocks</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Real Estate REITs</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Recent IPOs</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Retail &amp; E-Commerce</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Semiconductors</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Solar Energy</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Software &amp; SaaS</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Space &amp; Defense</span></div>
 
     </div>
     <!-- Resize handles -->
@@ -731,6 +965,21 @@
     <div class="float-panel-resize fp-res-b"  data-dir="b"></div>
     <div class="float-panel-resize fp-res-br" data-dir="br"></div>
     <div class="float-panel-resize fp-res-bl" data-dir="bl"></div>
+</div>
+
+<!-- Floating Canvas Drawer -->
+<div id="canvas-drawer" class="watchlist-drawer canvas-drawer">
+    <div class="float-panel-body mr-body">
+        <div class="mr-action-row">
+            <span class="mr-action-icon" style="color:#2563eb">+</span>
+            <span class="mr-action-label" style="color:#2563eb">New Canvas</span>
+        </div>
+        <div class="mr-divider"></div>
+        <div class="mr-section-label">RECENT CANVASES</div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg><span class="mr-label">AAPL Multi-Timeframe</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg><span class="mr-label">BTC Breakout Strategy</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg><span class="mr-label">Macro Overview</span></div>
+    </div>
 </div>
 
 <!-- Floating Watchlist Drawer -->
@@ -765,33 +1014,56 @@
 
         <div class="mr-divider"></div>
 
+        <!-- Events list -->
+        <div class="mr-section-label">EVENTS</div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Iran War Related</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Trade Talks</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Fed Rate Decision</span></div>
+
+        <div class="mr-divider"></div>
+
         <!-- Sector list -->
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">5G &amp; Telecom</span></div>
+        <!-- Trending -->
+        <div class="mr-section-label">TRENDING</div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">AI &amp; Machine Learning</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Airlines &amp; Travel</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Banking &amp; Finance</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Biotech</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Cannabis</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">China Tech</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Crypto Related</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Meme Stocks</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Nuclear Energy</span></div>
+
+        <div class="mr-divider"></div>
+
+        <!-- Selling Off -->
+        <div class="mr-section-label">SELLING OFF</div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span class="mr-label">Airlines &amp; Travel</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span class="mr-label">Cannabis</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span class="mr-label">China Tech</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg><span class="mr-label">Real Estate REITs</span></div>
+
+        <div class="mr-divider"></div>
+
+        <!-- Gaining Momentum -->
+        <div class="mr-section-label">GAINING MOMENTUM</div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Cybersecurity</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Defense &amp; Aerospace</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Semiconductors</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Software &amp; SaaS</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Space &amp; Defense</span></div>
+
+        <div class="mr-divider"></div>
+
+        <!-- Custom Watchlist -->
+        <div class="mr-section-label">MY CUSTOM WATCHLIST</div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">5G &amp; Telecom</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Banking &amp; Finance</span></div>
+        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Biotech</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Dividend Kings</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">EV &amp; Clean Energy</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Gold &amp; Silver</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">India Growth</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Iran War Related</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Lithium &amp; Battery</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Meme Stocks</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Nuclear Energy</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Oil Stocks</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Real Estate REITs</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Recent IPOs</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Retail &amp; E-Commerce</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Semiconductors</span></div>
         <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Solar Energy</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Software &amp; SaaS</span></div>
-        <div class="mr-item"><svg class="mr-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="mr-label">Space &amp; Defense</span></div>
     </div>
 </div>
 
@@ -799,28 +1071,12 @@
 <div class="bottom-tab-panel" id="bottom-tab-panel">
     <div class="btp-resize-bar" id="btp-resize-bar"></div>
      <div class="btp-tab-strip">
-         <button class="btp-tab" data-tab="watchlist">
+         <button class="btp-tab" data-tab="watchlist" style="display: flex; align-items: center; gap: 6px;">
              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-             Market Research
+             <span>Market Research</span>
+             <svg class="tab-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; opacity: 0; transition: opacity 0.2s; margin-left: -2px;"><polyline points="18 15 12 9 6 15"></polyline></svg>
          </button>
-         <button class="btp-tab" data-tab="views-3d">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                 <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-                 <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-                 <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-                 <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-             </svg>
-             3D Views
-         </button>
-         <button class="btp-tab" data-tab="views-f1">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                 <path d="M3 17h6l2-3h8l2 3h-2l-1-1H6l-1 1H3z"></path>
-                 <path d="M8 14l2-6h4l2 6"></path>
-                 <circle cx="7" cy="17" r="1"></circle>
-                 <circle cx="17" cy="17" r="1"></circle>
-             </svg>
-             F1 Tracks
-         </button>
+
          <button class="btp-tab" data-tab="views-floors">
              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                  <path d="M3 12l9-9 9 9-9 9-9-9z"></path>
@@ -828,15 +1084,12 @@
              </svg>
              Floors
          </button>
-         <button class="btp-tab" data-tab="views-blueprint">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                 <line x1="3" y1="9" x2="21" y2="9"></line>
-                 <line x1="9" y1="21" x2="9" y2="9"></line>
-             </svg>
-             Blueprint
-         </button>
 
+         <button class="btp-tab" data-tab="canvas" style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+             Canvas
+             <svg class="tab-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; opacity: 0; transition: opacity 0.2s; margin-left: -2px;"><polyline points="18 15 12 9 6 15"></polyline></svg>
+         </button>
 
         <div class="btp-strip-actions">
             <button class="btp-strip-btn" id="btp-minimize-btn" title="Minimize Panel">
@@ -869,17 +1122,19 @@
          <button class="btp-tab" data-tab="row2-product">Product</button>
          <button class="btp-tab" data-tab="row2-events">Events</button>
          <button class="btp-tab" data-tab="row2-themes-and-skins" style="margin-left: auto;">Themes and Skins</button>
+         <div id="themes-sub-tabs" style="display: none; background-color: rgba(128, 128, 128, 0.15); border-radius: 6px; padding: 0 4px; margin: 2px 4px; transition: all 0.2s ease;">
+             <button class="btp-tab" data-tab="row2-themes">Themes</button>
+             <button class="btp-tab" data-tab="row2-skins">Skins</button>
+             <button class="btp-tab" data-tab="row2-custom">Custom</button>
+         </div>
     </div>
     <div class="btp-content-area">
         <div class="btp-pane" data-pane="watchlist">
             <div class="watchlist-placeholder">Select items to watch...</div>
         </div>
-         <div class="btp-pane" data-pane="views-3d"></div>
-         <div class="btp-pane" data-pane="views-f1"></div>
+
          <div class="btp-pane" data-pane="views-floors"></div>
-         <div class="btp-pane" data-pane="views-blueprint">
-             <div style="padding: 20px; color: #fff;">Blueprint content goes here... (2D wireframe drafting view)</div>
-         </div>
+
 
          <div class="btp-pane active" data-pane="row2-home"></div>
          <div class="btp-pane" data-pane="row2-relevant"></div>
@@ -891,13 +1146,159 @@
          <div class="btp-pane" data-pane="row2-chart"></div>
          <div class="btp-pane" data-pane="row2-strategy"></div>
          <div class="btp-pane" data-pane="row2-list"></div>
-         <div class="btp-pane" data-pane="row2-integrations"></div>
+         <div class="btp-pane" data-pane="row2-integrations">
+             <div class="integrations-container">
+                 <div class="integrations-section">
+                     <div class="integrations-section-title">AI MODELS</div>
+                     <div class="integrations-grid">
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/chatgpt-6.svg" class="integration-icon" alt="OpenAI">
+                             <span class="integration-name">OpenAI</span>
+                         </div>
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#1e1e1e" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <text x="12" y="16" fill="#fff" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">A/</text>
+                             </svg>
+                             <span class="integration-name">Anthropic</span>
+                         </div>
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/gemini-icon-logo.svg" class="integration-icon" alt="Google Gemini">
+                             <span class="integration-name">Google Gemini</span>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="integrations-section">
+                     <div class="integrations-section-title">BROKERAGE & FINANCE</div>
+                     <div class="integrations-grid">
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/alpaca.svg.png" class="integration-icon" alt="Alpaca">
+                             <span class="integration-name">Alpaca</span>
+                         </div>
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/Charles_Schwab_Corporation_logo.svg" class="integration-icon" alt="Schwab">
+                             <span class="integration-name">Schwab</span>
+                         </div>
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/chase.png" class="integration-icon" alt="Chase">
+                             <span class="integration-name">Chase</span>
+                         </div>
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/capitalone.png" class="integration-icon" alt="Capital One">
+                             <span class="integration-name">Capital One</span>
+                         </div>
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#111" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <rect x="5" y="5" width="6" height="6" fill="#fff" rx="1"/>
+                                 <rect x="13" y="5" width="6" height="6" fill="#fff" rx="1"/>
+                                 <rect x="5" y="13" width="6" height="6" fill="#fff" rx="1"/>
+                                 <rect x="13" y="13" width="6" height="6" fill="#fff" rx="1"/>
+                             </svg>
+                             <span class="integration-name">Plaid</span>
+                         </div>
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#635bff" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <path d="M15.5 13.5c0-1.5-1.5-2-3-2.2-1-.2-1.5-.5-1.5-1.2 0-.6.5-1.1 1.5-1.1 1 0 2 .4 2.5.8l1-2c-.8-.7-2-1-3.5-1-2.5 0-4.5 1.2-4.5 3.5 0 2 1.8 2.5 3.2 2.8 1.2.2 1.8.5 1.8 1.2 0 .8-.8 1.2-1.8 1.2-1.2 0-2.5-.5-3.2-1.2l-1.2 2.2c1 .8 2.5 1.5 4.5 1.5 2.5 0 4.8-1.5 4.8-3.8z" fill="#fff"/>
+                             </svg>
+                             <span class="integration-name">Stripe</span>
+                         </div>
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/draftkings.scg.png" class="integration-icon" alt="DraftKings">
+                             <span class="integration-name">DraftKings</span>
+                         </div>
+                         <div class="integration-card">
+                             <img src="assets/side-panel-icons/dxfeed-icon.png" class="integration-icon" alt="dxFeed">
+                             <span class="integration-name">dxFeed</span>
+                         </div>
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/binance-us.png" class="integration-icon" alt="Binance.US">
+                             <span class="integration-name">Binance.US</span>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="integrations-section">
+                     <div class="integrations-section-title">MARKET DATA</div>
+                     <div class="integrations-grid">
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#22c55e" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <path d="M6 16l4-4 3 3 5-7v3h2V7h-4v2h2.5l-5.5 7.5-3-3-5 5z" fill="#fff"/>
+                             </svg>
+                             <span class="integration-name">Polygon.io</span>
+                         </div>
+                         <div class="integration-card">
+                             <img src="assets/company-logos-unofficial/polymarket.png" class="integration-icon" alt="Polymarket">
+                             <span class="integration-name">Polymarket</span>
+                         </div>
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#1e3a8a" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <circle cx="12" cy="12" r="7" fill="none" stroke="#fff" stroke-width="1.5"/>
+                                 <path d="M12 5c-3 0-5 7-5 7s2 7 5 7 5-7 5-7-2-7-5-7z" fill="none" stroke="#fff" stroke-width="1.5"/>
+                                 <path d="M5 12h14" stroke="#fff" stroke-width="1.5"/>
+                             </svg>
+                             <span class="integration-name">World Bank</span>
+                         </div>
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#ea580c" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <circle cx="12" cy="12" r="6" fill="none" stroke="#fff" stroke-width="1.5"/>
+                                 <circle cx="12" cy="12" r="2" fill="#fff"/>
+                                 <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="#fff" stroke-width="1.5"/>
+                             </svg>
+                             <span class="integration-name">CF Radar</span>
+                         </div>
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#3b82f6" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <path d="M19 13.5l-6-2-3 4-1.5-.5 1-4-4-1.5v-1.5l5 1 3-4 1.5.5-1.5 4 6 2v1.5z" fill="#fff"/>
+                             </svg>
+                             <span class="integration-name">ADSB.lol</span>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="integrations-section">
+                     <div class="integrations-section-title">COMMUNICATION</div>
+                     <div class="integrations-grid">
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#5865F2" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <path d="M16 8.5a13 13 0 00-3.5-1c-.1.3-.3.7-.4 1a12 12 0 00-4 0c-.1-.3-.3-.7-.4-1a13 13 0 00-3.5 1 12 12 0 00-2.5 8c1.5 1 2.5 1.5 4 2 .1 0 .2 0 .2-.1l1-1.2c-.4-.1-.8-.3-1.2-.5.1-.1.2-.2.3-.3 2.5 1 5 1 7.5 0 .1.1.2.2.3.3-.4.2-.8.4-1.2.5l1 1.2c.1.1.2.1.2.1 1.5-.5 2.5-1 4-2a12 12 0 00-2.5-8zM9.5 13.5c-.8 0-1.5-.8-1.5-1.5s.7-1.5 1.5-1.5 1.5.8 1.5 1.5-.7 1.5-1.5 1.5zm5 0c-.8 0-1.5-.8-1.5-1.5s.7-1.5 1.5-1.5 1.5.8 1.5 1.5-.7 1.5-1.5 1.5z" fill="#fff"/>
+                             </svg>
+                             <span class="integration-name">Discord</span>
+                         </div>
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#4A154B" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <path d="M8 12.5a2 2 0 11-2 2h2v-2zm-2-1a2 2 0 112-2v5a2 2 0 11-2-2zM12.5 16a2 2 0 11-2-2v2h2zm1 2a2 2 0 112-2H11a2 2 0 112 2zM16 11.5a2 2 0 112-2h-2v2zm2 1a2 2 0 11-2 2v-5a2 2 0 112 2zM11.5 8a2 2 0 112 2v-2h-2zm-1-2a2 2 0 11-2 2h5a2 2 0 11-2-2z" fill="#fff"/>
+                             </svg>
+                             <span class="integration-name">Slack</span>
+                         </div>
+                         <div class="integration-card">
+                             <svg viewBox="0 0 24 24" fill="#F22F46" class="integration-icon">
+                                 <rect width="24" height="24" rx="6"/>
+                                 <path d="M12 4C7.6 4 4 7.6 4 12s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm-1.5 10.5h-2.5v-2.5h2.5v2.5zm0-4h-2.5V8h2.5v2.5zm4 4h-2.5v-2.5h2.5v2.5zm0-4h-2.5V8h2.5v2.5z" fill="#fff"/>
+                             </svg>
+                             <span class="integration-name">Twilio</span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
          <div class="btp-pane" data-pane="row2-flow"></div>
          <div class="btp-pane" data-pane="row2-predictions"></div>
          <div class="btp-pane" data-pane="row2-product"></div>
          <div class="btp-pane" data-pane="row2-other"></div>
          <div class="btp-pane" data-pane="row2-events"></div>
          <div class="btp-pane" data-pane="row2-themes-and-skins"></div>
+         <div class="btp-pane" data-pane="row2-themes"></div>
+         <div class="btp-pane" data-pane="row2-skins"></div>
+         <div class="btp-pane" data-pane="row2-custom"></div>
      </div>
  </div>
  </div> <!-- End ui-container -->
@@ -909,6 +1310,7 @@
 
 <!-- Plotly -->
 <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+<script src="js/charts/native-chart.js"></script>
 <script src="js/charts/plotly-charts.js"></script>
 
 <!-- API Infrastructure (must load before any API clients) -->
@@ -948,6 +1350,7 @@
 <script src="js/views/view-1.js"></script>
 <script src="js/views/view-21.js"></script>
 <script src="js/views/view-22.js"></script>
+<script src="view-loader-terrain.js"></script>
 
 <!-- Tab Controllers (1 file per tab) -->
 <script src="js/tabs/tab-watchlist.js"></script>
@@ -1012,5 +1415,11 @@
         });
     });
 </script>
+
+<!-- Fullscreen Chart View -->
+<div id="fullscreen-chart-view" style="display: none; position: fixed; inset: 0; z-index: 500; background: var(--panel-bg, #ffffff); opacity: 0; transition: opacity 0.3s ease;">
+    <canvas id="fullscreen-chart-canvas" style="width: 100%; height: 100%; display: block;"></canvas>
+</div>
+
 </body>
 </html>

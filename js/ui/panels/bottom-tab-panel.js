@@ -30,6 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
+                    // Toggle floating canvas drawer
+                    const canvasDrawer = document.getElementById('canvas-drawer');
+                    if (canvasDrawer) {
+                        if (target === 'canvas') {
+                            canvasDrawer.classList.toggle('visible');
+                        } else {
+                            canvasDrawer.classList.remove('visible');
+                        }
+                    }
+
                     // Handle Home sub-tabs collapse logic
                     const homeSubTabs = ['row2-home', 'row2-relevant', 'row2-trending', 'row2-recent', 'row2-images', 'row2-other'];
                     const homeSubContainer = document.getElementById('home-sub-tabs');
@@ -45,6 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     }
+
+                    // Handle Themes sub-tabs collapse logic
+                    const themesSubTabs = ['row2-themes-and-skins', 'row2-themes', 'row2-skins', 'row2-custom'];
+                    const themesSubContainer = document.getElementById('themes-sub-tabs');
+                    if (themesSubContainer) {
+                        if (target === 'row2-themes-and-skins' && wasActive) {
+                            themesSubContainer.style.display = themesSubContainer.style.display === 'none' ? 'flex' : 'none';
+                        } else if (target && target.startsWith('row2-')) {
+                            if (themesSubTabs.includes(target)) {
+                                themesSubContainer.style.display = 'flex';
+                            } else {
+                                themesSubContainer.style.display = 'none';
+                            }
+                        }
+                    }
                 });
             });
 
@@ -56,19 +81,46 @@ document.addEventListener('DOMContentLoaded', () => {
                         drawer.classList.remove('visible');
                     }
                 }
+
+                const cDrawer = document.getElementById('canvas-drawer');
+                if (cDrawer && cDrawer.classList.contains('visible')) {
+                    if (!cDrawer.contains(e.target) && !e.target.closest('.btp-tab[data-tab="canvas"]')) {
+                        cDrawer.classList.remove('visible');
+                    }
+                }
             });
 
-            // Tab Expand/Collapse
+            // Tab Expand/Collapse (Add Widget button)
             const expandBtn = document.getElementById('add-widget-btn');
+            
+            // Helper to toggle add-widget-btn icon
+            const updateAddWidgetIcon = (isExpanded) => {
+                if (expandBtn) {
+                    const iconPath = expandBtn.querySelector('svg path');
+                    if (iconPath) {
+                        if (isExpanded) {
+                            iconPath.setAttribute('d', 'M5 12h14'); // minus
+                        } else {
+                            iconPath.setAttribute('d', 'M12 5v14M5 12h14'); // plus
+                        }
+                    }
+                }
+            };
+
             if (expandBtn) {
                 expandBtn.addEventListener('click', () => {
                     panel.classList.toggle('expanded-tabs');
                     const isExpanded = panel.classList.contains('expanded-tabs');
+                    updateAddWidgetIcon(isExpanded);
                     
                     // Show or hide row 2 directly to bypass CSS caching
                     if (isExpanded) {
                         const row2 = document.getElementById('btp-tab-strip-2');
                         if (row2) row2.style.display = 'flex';
+                        
+                        // Auto-select Home tab when expanding via Add Widget
+                        const homeTab = document.querySelector('.btp-tab[data-tab="row2-home"]');
+                        if (homeTab) homeTab.click();
                         
                         // Adjust height if necessary
                         const currentHeight = panel.getBoundingClientRect().height;
@@ -96,12 +148,69 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
+
+            // Market Research drawer item click -> open watchlist pane (no row 2)
+            const bindDrawerItemClicks = () => {
+                const drawers = [
+                    document.getElementById('watchlist-drawer'),
+                    document.getElementById('float-panel')
+                ];
+                drawers.forEach(drawer => {
+                    if (!drawer) return;
+                    drawer.addEventListener('click', (e) => {
+                        const item = e.target.closest('.mr-item');
+                        if (!item) return;
+
+                        // Call the updateWatchlist method
+                        const labelEl = item.querySelector('.mr-label');
+                        if (labelEl && typeof TabWatchlist !== 'undefined' && TabWatchlist.updateWatchlist) {
+                            TabWatchlist.updateWatchlist(labelEl.innerText);
+                        }
+
+                        // 1. Activate watchlist tab
+                        document.querySelectorAll('.btp-tab').forEach(t => t.classList.remove('active'));
+                        document.querySelectorAll('.btp-pane').forEach(p => p.classList.remove('active'));
+                        const watchlistTab = document.querySelector('.btp-tab[data-tab="watchlist"]');
+                        const watchlistPane = document.querySelector('.btp-pane[data-pane="watchlist"]');
+                        if (watchlistTab) watchlistTab.classList.add('active');
+                        if (watchlistPane) watchlistPane.classList.add('active');
+
+                        // 2. Hide row 2 tabs — this should NOT be a dashboard-style view
+                        const row2 = document.getElementById('btp-tab-strip-2');
+                        if (row2) row2.style.display = 'none';
+                        panel.classList.remove('expanded-tabs');
+                        updateAddWidgetIcon(false);
+
+                        // 3. Expand panel to show content
+                        const currentHeight = panel.getBoundingClientRect().height;
+                        if (currentHeight < 200) {
+                            panel.style.height = '300px';
+                            document.documentElement.style.setProperty('--tab-height', '300px');
+                        }
+
+                        // 4. Close the drawer
+                        drawer.classList.remove('visible');
+                        if (drawer.id === 'float-panel') {
+                            drawer.style.display = 'none';
+                        }
+
+                        // 5. Resize renderer
+                        if (typeof Q4Scene !== 'undefined' && Q4Scene.renderer) {
+                            setTimeout(() => {
+                                Q4Scene.renderer.setSize(window.innerWidth, window.innerHeight);
+                            }, 250);
+                        }
+                    });
+                });
+            };
+            bindDrawerItemClicks();
             
             // Minimize button handler
             const minimizeBtn = document.getElementById('btp-minimize-btn');
             if (minimizeBtn) {
                 minimizeBtn.addEventListener('click', () => {
                     panel.classList.remove('expanded-tabs');
+                    updateAddWidgetIcon(false);
                     const row2 = document.getElementById('btp-tab-strip-2');
                     if (row2) row2.style.display = 'none';
                     
