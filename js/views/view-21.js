@@ -48,22 +48,24 @@ ViewFactory.register(20, function () {
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 28px Inter, sans-serif';
-        ctx.fillText(msgObj.text, 30, 50);
+        ctx.font = 'bold 38px Inter, sans-serif';
+        ctx.fillText(msgObj.text, 30, 65);
 
         // Progress bar
         ctx.fillStyle = '#333344';
-        ctx.fillRect(30, 80, S - 60, 24);
+        ctx.fillRect(30, 95, S - 60, 28);
         
         ctx.fillStyle = accentHex;
-        ctx.fillRect(30, 80, (S - 60) * (msgObj.pct / 100), 24);
+        ctx.fillRect(30, 95, (S - 60) * (msgObj.pct / 100), 28);
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 22px Inter, sans-serif';
-        ctx.fillText(msgObj.pct + '% Yes', 30, 140);
+        ctx.font = 'bold 30px Inter, sans-serif';
+        ctx.fillText(msgObj.pct + '% Yes', 30, 160);
 
         var tex = new THREE.CanvasTexture(cv);
         tex.minFilter = THREE.LinearFilter;
+        tex.repeat.set(1 / CARD_W, 1 / CARD_H);
+        tex.offset.set(0.5, 0.5);
         return tex;
     }
 
