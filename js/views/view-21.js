@@ -25,42 +25,47 @@ ViewFactory.register(20, function () {
 
     // ---- Canvas texture builder: mock bet card ----
     function makeCardTex(accentHex, msgObj) {
-        var S = 512, H = 185; 
+        var S = 540, H = 195; 
         var cv = document.createElement('canvas');
         cv.width = S; cv.height = H;
         var ctx = cv.getContext('2d');
 
-        // Solid dark background with rounded corners
-        var R = 16;
+        // Solid dark background with perfectly matched rounded corners
+        var b = 2; // Inset to prevent clipping
+        var R = 36; // Exact match for geometry corner radius
         ctx.beginPath();
-        ctx.moveTo(R, 2); ctx.lineTo(S - R, 2);
-        ctx.quadraticCurveTo(S - 2, 2, S - 2, R + 2);
-        ctx.lineTo(S - 2, H - R - 2); ctx.quadraticCurveTo(S - 2, H - 2, S - R, H - 2);
-        ctx.lineTo(R, H - 2); ctx.quadraticCurveTo(2, H - 2, 2, H - R - 2);
-        ctx.lineTo(2, R + 2); ctx.quadraticCurveTo(2, 2, R, 2);
+        ctx.moveTo(R, b); 
+        ctx.lineTo(S - R, b); 
+        ctx.quadraticCurveTo(S - b, b, S - b, R);
+        ctx.lineTo(S - b, H - R); 
+        ctx.quadraticCurveTo(S - b, H - b, S - R, H - b);
+        ctx.lineTo(R, H - b); 
+        ctx.quadraticCurveTo(b, H - b, b, H - R);
+        ctx.lineTo(b, R); 
+        ctx.quadraticCurveTo(b, b, R, b);
         ctx.closePath();
         ctx.fillStyle = '#15151a';
         ctx.fill();
 
         // Accent border
         ctx.strokeStyle = accentHex;
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 2;
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 38px Inter, sans-serif';
-        ctx.fillText(msgObj.text, 30, 65);
+        ctx.fillText(msgObj.text, 35, 70);
 
         // Progress bar
         ctx.fillStyle = '#333344';
-        ctx.fillRect(30, 95, S - 60, 28);
+        ctx.fillRect(35, 100, S - 70, 28);
         
         ctx.fillStyle = accentHex;
-        ctx.fillRect(30, 95, (S - 60) * (msgObj.pct / 100), 28);
+        ctx.fillRect(35, 100, (S - 70) * (msgObj.pct / 100), 28);
 
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 30px Inter, sans-serif';
-        ctx.fillText(msgObj.pct + '% Yes', 30, 160);
+        ctx.fillText(msgObj.pct + '% Yes', 35, 170);
 
         var tex = new THREE.CanvasTexture(cv);
         tex.minFilter = THREE.LinearFilter;
