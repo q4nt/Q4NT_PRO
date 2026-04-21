@@ -1011,6 +1011,36 @@ body.dark-theme .btp-tab.active   { color: #ffffff; }
     border-bottom-color: transparent;
 }
 
+/* Keep headers visible when panels are inside bottom tab panes */
+.btp-pane .q4-widget-panel:not(:hover):not(.locked-header) .q4-widget-header {
+    height: 38px;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 1;
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.btp-pane .gv-panel:not(:hover):not(.locked-header) .gv-panel-header {
+    height: auto;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    opacity: 1;
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+.btp-pane .float-panel:not(:hover):not(.locked-header) .float-panel-header {
+    height: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    opacity: 1;
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+/* Match the dark theme border color for float panels inside bottom tabs */
+body.dark-theme .btp-pane .float-panel:not(:hover):not(.locked-header) .float-panel-header {
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+
 /* Instant reveal on hover or when locked */
 .q4-widget-panel:hover .q4-widget-header,
 .gv-panel:hover .gv-panel-header,
